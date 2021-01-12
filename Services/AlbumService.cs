@@ -21,32 +21,20 @@ namespace Covers.Services
             return await _context.Albums.FirstOrDefaultAsync(a => a.AlbumId == id);
         }
 
-        public async Task AddAsync(string name)
+        public async Task<List<Album>> GetAsync()
         {
-            var album = new Album
-            {
-                Name = name,
-                Path = "some path",
-                Cover = new Cover
-                {
-                    Path = "some path"
-                },
-                Tracks = new List<Track>
-                {
-                    new Track
-                    {
-                        Name = "track name",
-                        Number = 1,
-                        Path = "sopm pat",
-                        Artist = new Artist
-                        {
-                            Name = "some artist"
-                        }
-                    }
-                }
-            };
+            return await _context.Albums.ToListAsync();
+        }
 
+        public async Task AddAsync(Album album)
+        {
             await _context.Albums.AddAsync(album);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddAsync(List<Album> albums)
+        {
+            await _context.Albums.AddRangeAsync(albums);
             await _context.SaveChangesAsync();
         }
     }

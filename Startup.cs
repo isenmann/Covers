@@ -1,3 +1,4 @@
+using Covers.BackgroundServices;
 using Covers.Contracts.Interfaces;
 using Covers.Persistency;
 using Covers.Services;
@@ -40,6 +41,9 @@ namespace Covers
                          options.UseLazyLoadingProxies().UseSqlite(Configuration.GetConnectionString("CoversContext")));
             services.AddTransient<ICoverService, CoverService>();
             services.AddTransient<IAlbumService, AlbumService>();
+            services.AddTransient<IArtistService, ArtistService>();
+            services.AddTransient<ITrackService, TrackService>();
+            services.AddHostedService<AlbumScanner>();
             services.AddSwaggerDocument();
         }
 

@@ -56,7 +56,7 @@ namespace Covers.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAlbumAsync(CreateAlbumRequest request)
         {
-            await _albumService.AddAsync(request.Name);
+            //await _albumService.AddAsync(request.Name);
             return new OkResult();
         }
     }
