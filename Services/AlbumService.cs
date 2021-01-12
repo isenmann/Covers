@@ -18,7 +18,7 @@ namespace Covers.Services
 
         public async Task<Album> GetAsync(long id)
         {
-            return await _context.Albums.FirstOrDefaultAsync(a => a.AlbumId == id);
+            return await _context.Albums.FindAsync(id);
         }
 
         public async Task<List<Album>> GetAsync()
@@ -35,6 +35,12 @@ namespace Covers.Services
         public async Task AddAsync(List<Album> albums)
         {
             await _context.Albums.AddRangeAsync(albums);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Album album)
+        {
+            _context.Albums.Update(album);
             await _context.SaveChangesAsync();
         }
     }

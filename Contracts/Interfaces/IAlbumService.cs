@@ -10,5 +10,6 @@ namespace Covers.Contracts.Interfaces
         Task<List<Album>> GetAsync();
         Task AddAsync(Album album);
         Task AddAsync(List<Album> album);
+        Task UpdateAsync(Album album);
     }
 }

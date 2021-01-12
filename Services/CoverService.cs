@@ -21,5 +21,10 @@ namespace Covers.Services
         {
             return await _context.Covers.AsNoTracking().ToListAsync();
         }
+
+        public async Task<IEnumerable<Cover>> GetPagedAsync(int pageNumber)
+        {
+            return await _context.Covers.AsNoTracking().Skip((pageNumber - 1) * 40).Take(40).ToListAsync();
+        }
     }
 }

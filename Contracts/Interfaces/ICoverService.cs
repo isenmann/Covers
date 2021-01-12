@@ -7,5 +7,6 @@ namespace Covers.Contracts.Interfaces
     public interface ICoverService
     {
         Task<IEnumerable<Cover>> GetAsync();
+        Task<IEnumerable<Cover>> GetPagedAsync(int pageNumber);
     }
 }
