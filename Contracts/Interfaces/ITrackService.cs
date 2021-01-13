@@ -7,5 +7,6 @@ namespace Covers.Contracts.Interfaces
     public interface ITrackService
     {
         Task<IEnumerable<Track>> GetAsync();
+        Task<Track> GetAsync(long id);
     }
 }

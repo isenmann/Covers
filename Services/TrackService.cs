@@ -19,5 +19,10 @@ namespace Covers.Services
         {
             return await _context.Tracks.AsNoTracking().ToListAsync();
         }
+
+        public async Task<Track> GetAsync(long id)
+        {
+            return await _context.Tracks.FindAsync(id);
+        }
     }
 }
