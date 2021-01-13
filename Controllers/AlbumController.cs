@@ -39,19 +39,32 @@ namespace Covers.Controllers
                 Covers = covers.Select(c => new CoverDTO
                 {
                     AlbumId = c.AlbumId,
-                    CoverId = c.CoverId,
-                    FrontCover = c.FrontCover != null ? ScaleCoverBase64(c.FrontCover) : string.Empty
+                    CoverId = c.CoverId
                 }).ToList(),
                 TotalCount = covers.Count()
             };
             return new OkObjectResult(response);
         }
 
-        private static string ScaleCoverBase64(byte[] coverImage)
+        [HttpGet("Cover"),
+         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status404NotFound),
+         Produces("image/png"),
+         ResponseCache(Duration = 86400)]
+        public async Task<IActionResult> GetCoverAsync([FromQuery]CoverRequest request)
         {
-            using var image = new MagickImage(coverImage);
-            image.Scale(new MagickGeometry { IgnoreAspectRatio = true, Width = 250, Height = 250 });
-            return image.ToBase64(MagickFormat.Png);
+            var cover = await _coverService.GetAsync(request.CoverId);
+            if (cover == null)
+            {
+                return new BadRequestObjectResult("Cover not found");
+            }
+
+            if (request.Scaled)
+            {
+                return File(ScaleCover(cover.FrontCover), "image/png");
+            }
+
+            return File(cover.FrontCover, "image/png");
         }
 
         [HttpGet("{id}"),
@@ -97,17 +110,25 @@ namespace Covers.Controllers
 
             using var binaryReader = new BinaryReader(request.FrontCover.OpenReadStream());
             var imageBytes = binaryReader.ReadBytes((int)request.FrontCover.Length);
+            using var image = new MagickImage(imageBytes);
 
             if (album.Cover == null)
             {
                 album.Cover = new Persistency.Entities.Cover();
             }
             
-            album.Cover.FrontCover = imageBytes;
+            album.Cover.FrontCover = image.ToByteArray(MagickFormat.Png);
 
             await _albumService.UpdateAsync(album);
 
             return new OkResult();
+        }
+
+        private static byte[] ScaleCover(byte[] coverImage)
+        {
+            using var image = new MagickImage(coverImage);
+            image.Scale(new MagickGeometry { IgnoreAspectRatio = true, Width = 250, Height = 250 });
+            return image.ToByteArray(MagickFormat.Png);
         }
     }
 }
