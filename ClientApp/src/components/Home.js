@@ -1,14 +1,22 @@
-import React, { Component, useCallback } from 'react';
+import React, { Component } from 'react';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import Gallery from 'react-photo-gallery';
+import Modal from 'react-modal';
+import { CoverModal } from './CoverModal';
+
+Modal.setAppElement("#root");
 
 export class Home extends Component {
   static displayName = Home.name;
-
   constructor(props) {
     super(props);
-    this.state = { albums: [], loading: true };
+    this.state = { 
+      albums: [], 
+      loading: true,
+      isCoverModalOpen: false,
+      albumIdForModal: -1,
+      coverIdForModal: -1 };
   }
 
   componentDidMount() {
@@ -42,21 +50,32 @@ export class Home extends Component {
   }
 
   openCoverModal(albumId, coverId) {
-debugger
+      this.setState({ 
+        isCoverModalOpen: true,
+        albumIdForModal: albumId,
+        coverIdForModal: coverId });
   }
+
+  hideModal = () => {
+    this.setState({ 
+      isCoverModalOpen: false,
+      albumIdForModal: -1,
+      coverIdForModal: -1 });
+  };
 
   render () {
     return (
       <div>
-        {/* <AudioPlayer
-          autoPlay
-          src="https://localhost:5001/Track/201"
-          onPlay={e => console.log("onPlay")}
-          // other props here
-        /> */}
-
         <Gallery photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.coverId)}} />;
-       
+        <Modal
+          isOpen={this.state.isCoverModalOpen}
+          onRequestClose={this.hideModal}
+          contentLabel="My dialog"
+          // className="coverModal"
+          overlayClassName="coverModalOverlay"
+          closeTimeoutMS={500}>
+            <CoverModal albumId={this.state.albumIdForModal} coverId={this.state.coverIdForModal}/>
+        </Modal>
       </div>
     );
   }
