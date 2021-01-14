@@ -1,6 +1,7 @@
 ﻿using Covers.Contracts.Interfaces;
 using Covers.Models.DTOs;
 using Covers.Models.Requests;
+using Covers.Models.Responses;
 using ImageMagick;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +19,13 @@ namespace Covers.Controllers
     {
         private readonly ILogger<AlbumController> _logger;
         private readonly IAlbumService _albumService;
+        private readonly ICoverService _coverService;
 
-        public AlbumController(ILogger<AlbumController> logger, IAlbumService albumService)
+        public AlbumController(ILogger<AlbumController> logger, IAlbumService albumService, ICoverService coverService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _albumService = albumService ?? throw new ArgumentNullException(nameof(albumService));
+            _coverService = coverService ?? throw new ArgumentNullException(nameof(coverService));
         }
 
         [HttpGet("{id}"),
@@ -51,6 +54,27 @@ namespace Covers.Controllers
                     Number = t.Number
                 }).ToList()
             };
+            return new OkObjectResult(response);
+        }
+
+        [HttpGet("Overview"),
+         ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AlbumOverviewResponse)),
+         ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetOverviewAsync()
+        {
+            var albums = await _albumService.GetAsync();
+            var covers = await _coverService.GetCoverAndAlbumIdAsync();
+
+            var response = new AlbumOverviewResponse
+            {
+                Albums = albums.Select(a => new CoverDTO
+                {
+                    AlbumId = a.AlbumId,
+                    CoverId = covers.FirstOrDefault(x => a.AlbumId == x.Item2)?.Item1 ?? -1
+                }).ToList(),
+                TotalCount = albums.Count
+            };
+
             return new OkObjectResult(response);
         }
 

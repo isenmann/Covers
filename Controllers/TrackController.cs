@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Covers.Controllers
@@ -20,7 +21,7 @@ namespace Covers.Controllers
             _trackService = trackService ?? throw new ArgumentNullException(nameof(trackService));
         }
 
-        [HttpGet,
+        [HttpGet("{id}"),
          ProducesResponseType(StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status404NotFound),
          Produces("audio/mpeg"),
@@ -33,9 +34,9 @@ namespace Covers.Controllers
                 return new BadRequestObjectResult("Track not found");
             }
 
-            var file = await System.IO.File.ReadAllBytesAsync(track.Path);
-
-            return File(file, "audio/mpeg");
+            var fileStream = new FileStream(track.Path, FileMode.Open);
+            fileStream.Seek(0, SeekOrigin.Begin);
+            return File(fileStream, "audio/mpeg", true);
         }
     }
 }

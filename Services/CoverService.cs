@@ -17,9 +17,14 @@ namespace Covers.Services
         {
             _context = context;
         }
-        public async Task<IEnumerable<Cover>> GetAsync()
+        public async Task<List<Cover>> GetAsync()
         {
             return await _context.Covers.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<Tuple<long, long>>> GetCoverAndAlbumIdAsync()
+        {
+            return await _context.Covers.AsNoTracking().Select(c => new Tuple<long, long>(c.CoverId, c.AlbumId)).ToListAsync();
         }
 
         public async Task<Cover> GetAsync(long id)
@@ -27,7 +32,7 @@ namespace Covers.Services
             return await _context.Covers.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Cover>> GetPagedAsync(int pageNumber)
+        public async Task<List<Cover>> GetPagedAsync(int pageNumber)
         {
             return await _context.Covers.AsNoTracking().Skip((pageNumber - 1) * 40).Take(40).ToListAsync();
         }
