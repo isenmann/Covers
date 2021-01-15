@@ -1,11 +1,13 @@
 ﻿using Covers.Contracts.Interfaces;
 using Covers.Persistency.Entities;
+using ImageMagick;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -18,6 +20,7 @@ namespace Covers.BackgroundServices
         private ILogger<AlbumScanner> _logger;
         private readonly IServiceProvider _services;
         private DirectoryInfo _musicDirectory;
+        private string _aadExecutable;
 
         public AlbumScanner(ILogger<AlbumScanner> logger, IServiceProvider services, IConfiguration configuration)
         {
@@ -30,6 +33,7 @@ namespace Covers.BackgroundServices
             _services = services ?? throw new ArgumentNullException(nameof(services));
             var path = configuration.GetValue<string>("MusicDirectory");
             _musicDirectory = new DirectoryInfo(path);
+            _aadExecutable = configuration.GetValue<string>("aadExecutable");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -110,11 +114,67 @@ namespace Covers.BackgroundServices
 
                 if (albumsToAdd.Count > 0)
                 {
+                    foreach (var album in albumsToAdd)
+                    {
+                        var artistUnique = album.Tracks.Select(t => t.ArtistId).Distinct().Count() == 1;
+                        var artist = artistUnique ? album.Tracks.First().Artist.Name : " ";
+
+                        if (await FetchCover(album.Name, artist))
+                        {
+                            album.Cover = new Cover();
+
+                            if (File.Exists("Front.jpg"))
+                            {
+                                using var frontCover = new MagickImage(File.ReadAllBytes("Front.jpg"));
+                                album.Cover.FrontCover = frontCover.ToByteArray(MagickFormat.Png);
+                            }
+
+                            if (File.Exists("Back.jpg"))
+                            {
+                                using var backCover = new MagickImage(File.ReadAllBytes("Back.jpg"));
+                                album.Cover.BackCover = backCover.ToByteArray(MagickFormat.Png);
+                            }
+                        };
+                    }
+
                     await albumService.AddAsync(albumsToAdd);
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
             }
+        }
+
+        protected async Task<bool> FetchCover(string albumName, string artist)
+        {
+            if (string.IsNullOrWhiteSpace(albumName) || string.IsNullOrWhiteSpace(artist))
+            {
+                return false;
+            }
+
+            if (!File.Exists(_aadExecutable))
+            {
+                return false;
+            }
+
+            if (File.Exists("Front.jpg"))
+            {
+                File.Delete("Front.jpg");
+            }
+
+            if (File.Exists("Back.jpg"))
+            {
+                File.Delete("Back.jpg");
+            }
+
+            var process = new Process();
+            process.StartInfo.FileName = _aadExecutable;
+            process.StartInfo.Arguments = $"/ar \"{artist}\" /al \"{albumName}\" /path \"%type%.jpg\" /coverType front,back /s \"Qobuz (fr-fr),Amazon (.com),iTunes\"";
+            process.Start();
+
+            await process.WaitForExitAsync();
+            var errorCode = process.ExitCode;
+
+            return errorCode == 0;
         }
     }
 }
