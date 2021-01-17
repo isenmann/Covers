@@ -27,6 +27,28 @@ code {
   padding: 20px;
 }
 
+.coverImageModalDialog {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.tracklist {
+  overflow: auto;
+}
+
+.flexwrapOff {
+  flex-wrap: nowrap;
+}
+
+.h-80 {
+  height: 80%;
+}
+
+.h-20 {
+  height: 20%;
+}
+
 .coverModalOverlay {
   position: fixed;
   top: 0;

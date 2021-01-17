@@ -71,19 +71,21 @@ export class CoverModal extends Component {
     }
 
     return (
-      <div>
-          <h1 id="albumName">{this.state.albumData.name}</h1>
-          <img src={frontCover}/>
-          <img src={backCover}/>
-          <p></p>
-          <AudioPlayer
-            //autoPlay
-            src={`Track/${this.state.trackIdToPlay}`}
-            // onPlay={e => console.log("onPlay")}
-            // other props here
-            />
-        <h3 id="tabelLabel" >Tracks</h3>
-        {contents}
+      <div className="container-fluid h-100">
+        <div className="row h-80 flexwrapOff">
+          <div className="col-6 coverImageModalDialog" 
+               style={{backgroundImage: `url('${frontCover}')`}} />
+          <div className="col-6 tracklist">
+            {contents}
+          </div>
+        </div>
+        <div className="row h-20">
+          <div className="col-12 d-flex align-self-end">
+            <AudioPlayer layout="horizontal"
+              customAdditionalControls={[]}
+              src={`Track/${this.state.trackIdToPlay}`} />
+          </div>
+        </div> 
       </div>
     );
   }
