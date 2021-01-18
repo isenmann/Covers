@@ -52,7 +52,7 @@ export class CoverModal extends Component {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
       : (
-        <table className='table table-striped table-hover' aria-labelledby="tabelLabel">
+        <table className='table table-striped table-hover table-borderless' aria-labelledby="tabelLabel">
           <thead>
             <tr>
               <th>Number</th>
