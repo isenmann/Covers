@@ -41,11 +41,18 @@ export class CoverModal extends Component {
     this.setState({trackIdToPlay: trackId});
   }
 
+  nextTrack() {
+    let trackArrayIndex = this.state.albumData.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
+    if(this.state.albumData.tracks.length > trackArrayIndex + 1){
+      this.play(this.state.albumData.tracks[trackArrayIndex + 1].trackId);
+    }
+  }
+
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
       : (
-        <table className='table table-striped' aria-labelledby="tabelLabel">
+        <table className='table table-striped table-hover' aria-labelledby="tabelLabel">
           <thead>
             <tr>
               <th>Number</th>
@@ -83,7 +90,8 @@ export class CoverModal extends Component {
           <div className="col-12 d-flex align-self-end">
             <AudioPlayer layout="horizontal"
               customAdditionalControls={[]}
-              src={`Track/${this.state.trackIdToPlay}`} />
+              src={`Track/${this.state.trackIdToPlay}`}
+              onEnded={e => this.nextTrack()} />
           </div>
         </div> 
       </div>

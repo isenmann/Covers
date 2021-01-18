@@ -52,7 +52,7 @@ namespace Covers.Controllers
                     Artist = t.Artist.Name,
                     Name = t.Name,
                     Number = t.Number
-                }).ToList()
+                }).OrderBy(t => t.Number).ToList()
             };
             return new OkObjectResult(response);
         }
