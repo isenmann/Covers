@@ -56,7 +56,7 @@ namespace Covers.BackgroundServices
                 {
                     using var taglibFile = TagLib.File.Create(file);
                     var existingAlbum = existingAlbums.FirstOrDefault(a => a.Name == taglibFile.Tag.Album);
-                    var existingArtist = exisitingArtists.FirstOrDefault(a => a.Name == string.Join(",", taglibFile.Tag.AlbumArtists));
+                    var existingArtist = exisitingArtists.FirstOrDefault(a => a.Name == string.Join(",", taglibFile.Tag.Performers));
                     var existingTrack = exisitingTracks.FirstOrDefault(a => a.Name == taglibFile.Tag.Title && a.Number == (int)taglibFile.Tag.Track);
                     
                     if (existingAlbum == null)
@@ -66,7 +66,7 @@ namespace Covers.BackgroundServices
 
                     if (existingArtist == null)
                     {
-                        existingArtist = newArtists.FirstOrDefault(a => a.Name == string.Join(",", taglibFile.Tag.AlbumArtists));
+                        existingArtist = newArtists.FirstOrDefault(a => a.Name == string.Join(",", taglibFile.Tag.Performers));
                     }
 
                     if (existingTrack == null)
@@ -90,7 +90,7 @@ namespace Covers.BackgroundServices
                     {
                         existingArtist = new Artist
                         {
-                            Name = string.Join(",", taglibFile.Tag.AlbumArtists)
+                            Name = string.Join(",", taglibFile.Tag.Performers)
                         };
 
                         newArtists.Add(existingArtist);
