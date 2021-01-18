@@ -33,6 +33,20 @@ code {
   background-size: contain;
 }
 
+.imageButton {
+  cursor: pointer;
+}
+
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+  overflow: hidden;
+  visibility: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
 .tracklist {
   overflow: auto;
 }

@@ -1,13 +1,21 @@
 import React, { Component } from 'react';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import axios from 'axios';
 
 export class CoverModal extends Component {
   static displayName = CoverModal.name;
 
   constructor(props) {
     super(props);
-    this.state = { albumId: props.albumId, coverId: props.coverId, albumData: [], loading: true, trackIdToPlay: -1 };
+    this.state = { 
+      albumId: props.albumId, 
+      coverId: props.coverId, 
+      albumData: [], 
+      loading: true, 
+      trackIdToPlay: -1,
+      selectedFrontCover: null,
+      selectedBackCover: null };
   }
 
   componentDidMount() {
@@ -48,6 +56,15 @@ export class CoverModal extends Component {
     }
   }
 
+  onChangeHandler=event=>{
+    const data = new FormData() ;
+    data.append('albumid', this.state.albumId);
+    data.append('frontcover', event.target.files[0]);
+    data.append('backcover', null);
+    axios.post("Album/Cover", data, {
+    });
+  }
+
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
@@ -80,11 +97,15 @@ export class CoverModal extends Component {
     return (
       <div className="container-fluid h-100">
         <div className="row h-80 flexwrapOff">
+        <input className="inputFile" style={{overflow: "hidden"}} type="file" name="frontCover" id="frontCover" onChange={this.onChangeHandler}/>
           <div className="col-6 coverImageModalDialog" 
-               style={{backgroundImage: `url('${frontCover}')`}} />
+               style={{backgroundImage: `url('${frontCover}')`}}>
+              <label className="w-100 h-100 imageButton" htmlFor="frontCover"></label>
+          </div>
           <div className="col-6 tracklist">
             {contents}
           </div>
+         
         </div>
         <div className="row h-20">
           <div className="col-12 d-flex align-self-end">
