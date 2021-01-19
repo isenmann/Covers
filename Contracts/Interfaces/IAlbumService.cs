@@ -11,5 +11,6 @@ namespace Covers.Contracts.Interfaces
         Task AddAsync(Album album);
         Task AddAsync(List<Album> album);
         Task UpdateAsync(Album album);
+        Task DeleteAsync(Album album);
     }
 }

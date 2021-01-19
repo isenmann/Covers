@@ -17,7 +17,7 @@ namespace Covers.Services
         }
         public async Task<IEnumerable<Artist>> GetAsync()
         {
-            return await _context.Artists.AsNoTracking().ToListAsync();
+            return await _context.Artists.ToListAsync();
         }
     }
 }

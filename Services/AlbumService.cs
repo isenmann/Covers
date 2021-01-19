@@ -43,5 +43,11 @@ namespace Covers.Services
             _context.Albums.Update(album);
             await _context.SaveChangesAsync();
         }
+
+        public async Task DeleteAsync(Album album)
+        {
+            _context.Albums.Remove(album);
+            await _context.SaveChangesAsync();
+        }
     }
 }

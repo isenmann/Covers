@@ -17,7 +17,7 @@ namespace Covers.Services
         }
         public async Task<IEnumerable<Track>> GetAsync()
         {
-            return await _context.Tracks.AsNoTracking().ToListAsync();
+            return await _context.Tracks.ToListAsync();
         }
 
         public async Task<Track> GetAsync(long id)

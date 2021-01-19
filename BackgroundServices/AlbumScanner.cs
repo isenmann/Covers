@@ -46,6 +46,10 @@ namespace Covers.BackgroundServices
                 var artistService = scope.ServiceProvider.GetRequiredService<IArtistService>();
                 var trackService = scope.ServiceProvider.GetRequiredService<ITrackService>();
                 var existingAlbums = await albumService.GetAsync();
+
+                existingAlbums.Where(a => !Directory.Exists(a.Path)).ToList().ForEach(async album => await albumService.DeleteAsync(album));
+                existingAlbums.RemoveAll(a => !Directory.Exists(a.Path));
+
                 var exisitingArtists = await artistService.GetAsync();
                 var exisitingTracks = await trackService.GetAsync();
                 var albumsToAdd = new List<Album>();
@@ -109,12 +113,41 @@ namespace Covers.BackgroundServices
                         newTracks.Add(existingTrack);
                     }
 
+                    // if the mp3 tags have a picture, check if it's a front or back cover and add it to the album
+                    if (taglibFile.Tag.Pictures.Any(p => p.Type == TagLib.PictureType.FrontCover || p.Type == TagLib.PictureType.BackCover))
+                    {
+                        if (existingAlbum.Cover == null)
+                        {
+                            existingAlbum.Cover = new Cover();
+                        }
+
+                        foreach (var picture in taglibFile.Tag.Pictures)
+                        {
+                            using var cover = new MagickImage(picture.Data.Data);
+                            if (picture.Type == TagLib.PictureType.FrontCover)
+                            {
+                                if (existingAlbum.Cover.FrontCover == null)
+                                {
+                                    existingAlbum.Cover.FrontCover = cover.ToByteArray(MagickFormat.Png);
+                                }
+                            }
+
+                            if (picture.Type == TagLib.PictureType.BackCover)
+                            {
+                                if (existingAlbum.Cover.BackCover == null)
+                                {
+                                    existingAlbum.Cover.BackCover = cover.ToByteArray(MagickFormat.Png);
+                                }
+                            }
+                        }
+                    }
+
                     existingAlbum.Tracks.Add(existingTrack);
                 }
 
                 if (albumsToAdd.Count > 0)
                 {
-                    foreach (var album in albumsToAdd)
+                    foreach (var album in albumsToAdd.Where(a => a.Cover == null))
                     {
                         var artistUnique = album.Tracks.Select(t => t.ArtistId).Distinct().Count() == 1;
                         var artist = artistUnique ? album.Tracks.First().Artist.Name : " ";
