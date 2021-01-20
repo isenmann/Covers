@@ -102,11 +102,17 @@ namespace Covers.BackgroundServices
 
                     if (existingTrack == null)
                     {
+                        var numberOfTrack = (int)taglibFile.Tag.Track;
+                        if (taglibFile.Tag.DiscCount > 1)
+                        {
+                            numberOfTrack = ((int)taglibFile.Tag.Disc * 100) + numberOfTrack;
+                        }
+
                         existingTrack = new Track
                         {
                             Name = taglibFile.Tag.Title,
                             Path = file,
-                            Number = (int)taglibFile.Tag.Track,
+                            Number = numberOfTrack,
                             Artist = existingArtist
                         };
 
