@@ -72,20 +72,20 @@ export class CoverModal extends Component {
         <table className='table table-striped table-hover table-borderless' aria-labelledby="tabelLabel">
           <thead>
             <tr>
-              <th>Number</th>
-              <th>Name</th>
+              <th>#</th>
+              <th>Track</th>
             </tr>
           </thead>
           <tbody>
             {this.state.albumData.tracks.map(track =>
               {
                 if(track.trackId === this.state.trackIdToPlay){
-                return <tr style={{background: 'gold'}} key={track.trackId} onClick={() => this.play(track.trackId)}>
+                return <tr className="tablerow"style={{background: 'gold'}} key={track.trackId} onClick={() => this.play(track.trackId)}>
                   <td>{track.number}</td>
                   <td>{track.name}</td>
                 </tr>
                 }else{
-                  return <tr key={track.trackId} onClick={() => this.play(track.trackId)}>
+                  return <tr className="tablerow" key={track.trackId} onClick={() => this.play(track.trackId)}>
                   <td>{track.number}</td>
                   <td>{track.name}</td>
                 </tr>
@@ -105,8 +105,16 @@ export class CoverModal extends Component {
 
     return (
       <div className="container-fluid h-100">
+        
+        <div className="row h-5">
+            <h5>{this.state.albumData.artist} - {this.state.albumData.name}</h5>
+            <svg onClick={this.props.hideModal} className="modal-close-icon" viewBox="0 0 24 24">
+              <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
+            </svg>
+        </div>
+
         <div className="row h-80 flexwrapOff">
-        <input className="inputFile" style={{overflow: "hidden"}} type="file" name="frontCover" id="frontCover" onChange={this.onChangeHandler}/>
+          <input className="inputFile" style={{overflow: "hidden"}} type="file" name="frontCover" id="frontCover" onChange={this.onChangeHandler}/>
           <div className="col-6 coverImageModalDialog" 
                style={{backgroundImage: `url('${frontCover}')`}}>
               <label className="w-100 h-100 imageButton" htmlFor="frontCover"></label>
@@ -116,14 +124,15 @@ export class CoverModal extends Component {
           </div>
          
         </div>
-        <div className="row h-20">
+        <div className="row h-15">
           <div className="col-12 d-flex align-self-end">
             <AudioPlayer layout="horizontal"
               customAdditionalControls={[]}
               src={`Track/${this.state.trackIdToPlay}`}
               onEnded={e => this.nextTrack()} />
           </div>
-        </div> 
+        </div>
+
       </div>
     );
   }

@@ -63,6 +63,31 @@ code {
   height: 20%;
 }
 
+.h-5 {
+  height: 5%;
+}
+
+.h-15 {
+  height: 15%;
+}
+
+.modal-close-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 5px;
+  width: 24px;
+  height: 24px;
+  stroke: grey;
+  fill: grey;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tablerow {
+  cursor: pointer;
+}
+
 .coverModalOverlay {
   position: fixed;
   top: 0;

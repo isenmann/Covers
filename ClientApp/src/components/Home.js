@@ -72,7 +72,7 @@ export class Home extends Component {
           // className="coverModal"
           overlayClassName="coverModalOverlay"
           closeTimeoutMS={500}>
-            <CoverModal albumId={this.state.albumIdForModal} coverId={this.state.coverIdForModal}/>
+            <CoverModal albumId={this.state.albumIdForModal} coverId={this.state.coverIdForModal} hideModal={this.hideModal}/>
         </Modal>
       </div>
     );
