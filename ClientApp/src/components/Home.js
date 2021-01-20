@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import AudioPlayer from 'react-h5-audio-player';
-import 'react-h5-audio-player/lib/styles.css';
 import Gallery from 'react-photo-gallery';
 import Modal from 'react-modal';
 import { CoverModal } from './CoverModal';

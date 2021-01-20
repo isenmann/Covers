@@ -78,10 +78,19 @@ export class CoverModal extends Component {
           </thead>
           <tbody>
             {this.state.albumData.tracks.map(track =>
-              <tr key={track.trackId} onClick={() => this.play(track.trackId)}>
-                <td>{track.number}</td>
-                <td>{track.name}</td>
-              </tr>
+              {
+                if(track.trackId === this.state.trackIdToPlay){
+                return <tr style={{background: 'gold'}} key={track.trackId} onClick={() => this.play(track.trackId)}>
+                  <td>{track.number}</td>
+                  <td>{track.name}</td>
+                </tr>
+                }else{
+                  return <tr key={track.trackId} onClick={() => this.play(track.trackId)}>
+                  <td>{track.number}</td>
+                  <td>{track.name}</td>
+                </tr>
+                }
+              }
             )}
           </tbody>
         </table>
