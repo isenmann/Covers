@@ -67,7 +67,7 @@ namespace Covers.Controllers
 
             var response = new AlbumOverviewResponse
             {
-                Albums = albums.Select(a => new CoverDTO
+                Albums = albums.OrderBy(a=> a.Name).Select(a => new CoverDTO
                 {
                     AlbumId = a.AlbumId,
                     CoverId = covers.FirstOrDefault(x => a.AlbumId == x.Item2)?.Item1 ?? -1
