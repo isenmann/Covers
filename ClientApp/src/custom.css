@@ -41,8 +41,8 @@ code {
 	width: 0.1px;
 	height: 0.1px;
 	opacity: 0;
-  overflow: hidden;
-  visibility: hidden;
+	overflow: hidden;
+	visibility: hidden;
 	position: absolute;
 	z-index: -1;
 }
@@ -102,10 +102,159 @@ code {
   transition: opacity 500ms ease-in-out;
 }
 
+.OverViewFadeOut {
+	opacity: 0;
+	transition: opacity 500ms ease-in-out;
+}
+
+.OverViewFadeIn {
+	opacity: 1;
+	transition: opacity 500ms ease-in-out;
+}
+
 .ReactModal__Overlay--after-open {
   opacity: 1;
 }
 
 .ReactModal__Overlay--before-close {
   opacity: 0;
+}
+
+
+@import 'https://fonts.googleapis.com/css?family=Oswald:300|Slabo+27px';
+body, html, #app {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+:root {
+	font-family: "Slabo 27px";
+	font-size: 14px;
+	color: #333333;
+}
+
+@media screen and (min-width: 768px) {
+	:root {
+		font-size: 16px;
+	}
+}
+
+@media screen and (min-width: 1024px) {
+	:root {
+		font-size: 18px;
+	}
+}
+
+@media screen and (min-width: 1440px) {
+	:root {
+		font-size: 23px;
+	}
+}
+
+.gallery {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: left;
+	padding: 0.05em;
+}
+
+.gallery-tile {
+	margin: 0.05em;
+	overflow: hidden;
+	position: relative;
+	cursor: pointer;
+}
+
+	.gallery-tile img {
+		transition: transform 300ms ease-in-out, filter 300ms ease-in-out;
+	}
+
+	.gallery-tile .picture-info {
+		position: absolute;
+		z-index: 1;
+		color: #ffffff;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-flow: column nowrap;
+		justify-content: center;
+		align-items: flex-start;
+		opacity: 0;
+		transition: opacity 300ms ease-in-out, filter 300ms ease-in-out;
+	}
+
+		.gallery-tile .picture-info > * {
+			margin: 0.5rem 1.25rem;
+		}
+
+		.gallery-tile .picture-info h2 {
+			font-family: "Oswald";
+			font-size: 2.5rem;
+			font-weight: 300;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+		}
+
+	.gallery-tile:hover img {
+		transform: scale(1.1);
+		filter: brightness(60%);
+	}
+
+	.gallery-tile:hover .picture-info {
+		opacity: 1;
+	}
+
+.fadeIn {
+	-webkit-animation: fade 300ms ease-in-out forwards;
+	animation: fade 300ms ease-in-out forwards;
+}
+
+@-webkit-keyframes fade {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes fade {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@-webkit-keyframes swell {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.3);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
+@keyframes swell {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.3);
+	}
+
+	100% {
+		transform: scale(1);
+	}
 }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Gallery from 'react-photo-gallery';
 import Modal from 'react-modal';
 import { CoverModal } from './CoverModal';
+import CustomPhoto from './CustomPhoto';
 
 Modal.setAppElement("#root");
 
@@ -64,7 +65,10 @@ export class Home extends Component {
   render () {
     return (
       <div>
-        <Gallery photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.coverId)}} />;
+        <div className={!this.state.isCoverModalOpen ? "OverViewFadeIn" : "OverViewFadeOut"}>
+          <Gallery renderImage={CustomPhoto} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.coverId)}} />
+        </div> 
+
         <Modal
           isOpen={this.state.isCoverModalOpen}
           onRequestClose={this.hideModal}
