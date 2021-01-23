@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const imgWithClick = { cursor: 'pointer' };
 
-const CustomPhoto = ({ index, onClick, photo, margin, direction, top, left, key }) => {
+const OverviewCover = ({ index, onClick, photo: cover, margin, direction, top, left, key }) => {
   const imgStyle = { /*margin: margin,*/ display: 'block' };
   if (direction === 'column') {
     imgStyle.position = 'absolute';
@@ -12,27 +12,27 @@ const CustomPhoto = ({ index, onClick, photo, margin, direction, top, left, key 
   }
 
   const handleClick = event => {
-    onClick(event, { photo, index });
+    onClick(event, { cover, index });
   };
 
   return (
     <div className="gallery-tile" onClick={onClick ? handleClick : null}>
         <div className="picture-info">
-            <h2>text</h2>
-            {/*<p>{this.props.desc}</p>*/}
+              <h5>{cover.albumName}</h5>
+              <p>{cover.artistName}</p>
         </div>
         <img
         className="tile-image"
         key={key}
         style={onClick ? { ...imgStyle, ...imgWithClick } : imgStyle}
-        {...photo}
+        {...cover}
         
         />
     </div>
   );
 };
 
-export const photoPropType = PropTypes.shape({
+export const coverPropType = PropTypes.shape({
   key: PropTypes.string,
   src: PropTypes.string.isRequired,
   width: PropTypes.number.isRequired,
@@ -43,10 +43,10 @@ export const photoPropType = PropTypes.shape({
   sizes: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
 });
 
-CustomPhoto.propTypes = {
+OverviewCover.propTypes = {
   index: PropTypes.number.isRequired,
   onClick: PropTypes.func,
-  photo: photoPropType.isRequired,
+  cover: coverPropType.isRequired,
   margin: PropTypes.number,
   top: props => {
     if (props.direction === 'column' && typeof props.top !== 'number') {
@@ -61,4 +61,4 @@ CustomPhoto.propTypes = {
   direction: PropTypes.string,
 };
 
-export default CustomPhoto;
+export default OverviewCover;

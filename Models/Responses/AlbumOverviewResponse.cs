@@ -6,6 +6,6 @@ namespace Covers.Models.Responses
     public class AlbumOverviewResponse
     {
         public int TotalCount { get; set; }
-        public List<CoverDTO> Albums { get; set; }
+        public List<AlbumOverviewDTO> Albums { get; set; }
     }
 }

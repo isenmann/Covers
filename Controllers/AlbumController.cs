@@ -67,10 +67,12 @@ namespace Covers.Controllers
 
             var response = new AlbumOverviewResponse
             {
-                Albums = albums.OrderBy(a=> a.Name).Select(a => new CoverDTO
+                Albums = albums.OrderBy(a=> a.Name).Select(a => new AlbumOverviewDTO
                 {
                     AlbumId = a.AlbumId,
-                    CoverId = covers.FirstOrDefault(x => a.AlbumId == x.Item2)?.Item1 ?? -1
+                    CoverId = covers.FirstOrDefault(x => a.AlbumId == x.Item2)?.Item1 ?? -1,
+                    AlbumName = a.Name,
+                    ArtistName = a.Artist != null ? a.Artist.Name : "Various Artists"
                 }).ToList(),
                 TotalCount = albums.Count
             };

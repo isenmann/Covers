@@ -7,5 +7,6 @@ namespace Covers.Persistency.Entities
         public long ArtistId { get; set; }
         public string Name { get; set; }
         public virtual ICollection<Track> Tracks { get; set; }
+        public virtual ICollection<Album> Albums { get; set; }
     }
 }

@@ -151,6 +151,19 @@ namespace Covers.BackgroundServices
                     existingAlbum.Tracks.Add(existingTrack);
                 }
 
+                foreach (var album in albumsToAdd)
+                {
+                    var artistUnique = album.Tracks.Select(t => t.Artist.Name).Distinct().Count() == 1;
+                    if (artistUnique)
+                    {
+                        album.Artist = album.Tracks.First().Artist;
+                    }
+                    else
+                    {
+                        album.Artist = null;
+                    }
+                }
+
                 if (albumsToAdd.Count > 0)
                 {
                     foreach (var album in albumsToAdd.Where(a => a.Cover == null))
