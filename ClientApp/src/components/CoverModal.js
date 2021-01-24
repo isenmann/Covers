@@ -10,7 +10,8 @@ export class CoverModal extends Component {
     super(props);
     this.state = { 
       albumId: props.albumId, 
-      coverId: props.coverId, 
+      frontCoverId: props.frontCoverId, 
+      backCoverId: props.backCoverId,
       albumData: [], 
       loading: true, 
       trackIdToPlay: -1,
@@ -56,12 +57,19 @@ export class CoverModal extends Component {
     }
   }
 
-  onChangeHandler=event=>{
+  onChangeFrontCoverHandler=event=>{
     const data = new FormData() ;
     data.append('albumid', this.state.albumId);
-    data.append('frontcover', event.target.files[0]);
-    data.append('backcover', null);
-    axios.post("Album/Cover", data, {
+    data.append('cover', event.target.files[0]);
+    axios.post("Album/FrontCover", data, {
+    });
+  }
+
+  onChangeBackCoverHandler=event=>{
+    const data = new FormData() ;
+    data.append('albumid', this.state.albumId);
+    data.append('cover', event.target.files[0]);
+    axios.post("Album/BackCover", data, {
     });
   }
 
@@ -98,10 +106,13 @@ export class CoverModal extends Component {
 
     let frontCover = "placeholder.png";
     let backCover = "placeholder.png"
-    if(this.state.coverId > 0){
-        frontCover = `Cover/${this.state.coverId}/front`;
-        backCover = `Cover/${this.state.coverId}/back`;
+    if(this.state.frontCoverId > 0){
+        frontCover = `Cover/${this.state.frontCoverId}`;
     }
+    if(this.state.backCoverId > 0){
+        backCover = `Cover/${this.state.backCoverId}`;
+    }
+   
 
     return (
       <div className="container-fluid h-100">
@@ -114,15 +125,22 @@ export class CoverModal extends Component {
         </div>
 
         <div className="row h-80 flexwrapOff">
-          <input className="inputFile" style={{overflow: "hidden"}} type="file" name="frontCover" id="frontCover" onChange={this.onChangeHandler}/>
+          <input className="inputFile" style={{overflow: "hidden"}} type="file" name="frontCover" id="frontCover" onChange={this.onChangeFrontCoverHandler}/>
           <div className="col-6 coverImageModalDialog" 
                style={{backgroundImage: `url('${frontCover}')`}}>
               <label className="w-100 h-100 imageButton" htmlFor="frontCover"></label>
           </div>
+
+          {this.state.backCoverId > 0 ? 
+            <div className="col-6 coverImageModalDialog" 
+                style={{backgroundImage: `url('${backCover}')`}}>
+            </div>
+          :
           <div className="col-6 tracklist">
             {contents}
           </div>
-         
+          }
+          
         </div>
         <div className="row h-15">
           <div className="col-12 d-flex align-self-end">

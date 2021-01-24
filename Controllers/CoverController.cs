@@ -36,63 +36,38 @@ namespace Covers.Controllers
                 Covers = covers.Select(c => new CoverDTO
                 {
                     AlbumId = c.AlbumId,
-                    CoverId = c.CoverId
+                    CoverId = c.CoverId,
+                    Type = c.Type
                 }).ToList(),
-                TotalCount = covers.Count()
+                TotalCount = covers.Count
             };
             return new OkObjectResult(response);
         }
 
-        [HttpGet("{id}/front"),
+        [HttpGet("{id}"),
          ProducesResponseType(StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status404NotFound),
          Produces("image/png"),
          ResponseCache(Duration = 86400)]
-        public async Task<IActionResult> GetFrontCoverAsync(long id, [FromQuery]bool scaled)
+        public async Task<IActionResult> GetCoverAsync(long id, [FromQuery]bool scaled)
         {
             var cover = await _coverService.GetAsync(id);
             if (cover == null)
             {
-                return new BadRequestObjectResult("Front cover not found");
+                return new BadRequestObjectResult("Cover not found");
             }
 
-            if (cover.FrontCover == null)
-            {
-                return new BadRequestObjectResult("Front cover not found");
-            }
-
-            if (scaled)
-            {
-                return File(ScaleCover(cover.FrontCover), "image/png");
-            }
-
-            return File(cover.FrontCover, "image/png");
-        }
-
-        [HttpGet("{id}/back"),
-         ProducesResponseType(StatusCodes.Status200OK),
-         ProducesResponseType(StatusCodes.Status404NotFound),
-         Produces("image/png"),
-         ResponseCache(Duration = 86400)]
-        public async Task<IActionResult> GetBackCoverAsync(long id, [FromQuery] bool scaled)
-        {
-            var cover = await _coverService.GetAsync(id);
             if (cover == null)
             {
-                return new BadRequestObjectResult("Back cover not found");
-            }
-
-            if (cover.BackCover == null)
-            {
-                return new BadRequestObjectResult("Back cover not found");
+                return new BadRequestObjectResult("Cover not found");
             }
 
             if (scaled)
             {
-                return File(ScaleCover(cover.BackCover), "image/png");
+                return File(ScaleCover(cover.CoverImage), "image/png");
             }
 
-            return File(cover.BackCover, "image/png");
+            return File(cover.CoverImage, "image/png");
         }
 
         private static byte[] ScaleCover(byte[] coverImage)

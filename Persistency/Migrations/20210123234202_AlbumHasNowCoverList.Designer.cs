@@ -3,14 +3,16 @@ using System;
 using Covers.Persistency;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Covers.Persistency.Migrations
 {
     [DbContext(typeof(CoversContext))]
-    partial class CoversContextModelSnapshot : ModelSnapshot
+    [Migration("20210123234202_AlbumHasNowCoverList")]
+    partial class AlbumHasNowCoverList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

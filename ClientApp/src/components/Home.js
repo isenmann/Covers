@@ -30,9 +30,9 @@ export class Home extends Component {
 
     data.albums.forEach(element => {
       let coverSrc = "placeholder.png";
-      if(element.coverId > 0)
+      if(element.frontCoverId > 0)
       {
-        coverSrc = `/Cover/${element.coverId}/front?scaled=true`;
+        coverSrc = `/Cover/${element.frontCoverId}?scaled=true`;
       }
 
       covers.push({
@@ -40,7 +40,8 @@ export class Home extends Component {
         src: coverSrc,
         width: 1,
         height: 1,
-        coverId: element.coverId,
+        frontCoverId: element.frontCoverId,
+        backCoverId: element.backCoverId,
         albumId: element.albumId,
         albumName: element.albumName,
         artistName: element.artistName
@@ -50,25 +51,27 @@ export class Home extends Component {
     this.setState({ albums: covers, loading: false });
   }
 
-  openCoverModal(albumId, coverId) {
+  openCoverModal(albumId, frontCoverId, backCoverId) {
       this.setState({ 
         isCoverModalOpen: true,
         albumIdForModal: albumId,
-        coverIdForModal: coverId });
+        frontCoverIdForModal: frontCoverId,
+        backCoverIdForModal: backCoverId});
   }
 
   hideModal = () => {
     this.setState({ 
       isCoverModalOpen: false,
       albumIdForModal: -1,
-      coverIdForModal: -1 });
+      frontCoverIdForModal: -1,
+      backCoverIdForModal: -1});
   };
 
   render () {
     return (
       <div>
         <div className={!this.state.isCoverModalOpen ? "OverViewFadeIn" : "OverViewFadeOut"}>
-          <Gallery renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.coverId)}} />
+          <Gallery renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} />
         </div> 
 
         <Modal
@@ -78,7 +81,7 @@ export class Home extends Component {
           // className="coverModal"
           overlayClassName="coverModalOverlay"
           closeTimeoutMS={500}>
-            <CoverModal albumId={this.state.albumIdForModal} coverId={this.state.coverIdForModal} hideModal={this.hideModal}/>
+            <CoverModal albumId={this.state.albumIdForModal} frontCoverId={this.state.frontCoverIdForModal} backCoverId={this.state.backCoverIdForModal} hideModal={this.hideModal}/>
         </Modal>
       </div>
     );

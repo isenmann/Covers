@@ -122,9 +122,9 @@ namespace Covers.BackgroundServices
                     // if the mp3 tags have a picture, check if it's a front or back cover and add it to the album
                     if (taglibFile.Tag.Pictures.Any(p => p.Type == TagLib.PictureType.FrontCover || p.Type == TagLib.PictureType.BackCover))
                     {
-                        if (existingAlbum.Cover == null)
+                        if (existingAlbum.Covers == null)
                         {
-                            existingAlbum.Cover = new Cover();
+                            existingAlbum.Covers = new List<Cover>();
                         }
 
                         foreach (var picture in taglibFile.Tag.Pictures)
@@ -132,18 +132,32 @@ namespace Covers.BackgroundServices
                             using var cover = new MagickImage(picture.Data.Data);
                             if (picture.Type == TagLib.PictureType.FrontCover)
                             {
-                                if (existingAlbum.Cover.FrontCover == null)
+                                var frontCover = existingAlbum.Covers.FirstOrDefault(c => c.Type == CoverType.Front);
+                                if (frontCover == null)
                                 {
-                                    existingAlbum.Cover.FrontCover = cover.ToByteArray(MagickFormat.Png);
+                                    frontCover = new Cover
+                                    {
+                                        AlbumId = existingAlbum.AlbumId,
+                                        Type = CoverType.Front
+                                    };
                                 }
+
+                                frontCover.CoverImage = cover.ToByteArray(MagickFormat.Png);
                             }
 
                             if (picture.Type == TagLib.PictureType.BackCover)
                             {
-                                if (existingAlbum.Cover.BackCover == null)
+                                var backCover = existingAlbum.Covers.FirstOrDefault(c => c.Type == CoverType.Back);
+                                if (backCover == null)
                                 {
-                                    existingAlbum.Cover.BackCover = cover.ToByteArray(MagickFormat.Png);
+                                    backCover = new Cover
+                                    {
+                                        AlbumId = existingAlbum.AlbumId,
+                                        Type = CoverType.Back
+                                    };
                                 }
+
+                                backCover.CoverImage = cover.ToByteArray(MagickFormat.Png);
                             }
                         }
                     }
@@ -166,25 +180,35 @@ namespace Covers.BackgroundServices
 
                 if (albumsToAdd.Count > 0)
                 {
-                    foreach (var album in albumsToAdd.Where(a => a.Cover == null))
+                    foreach (var album in albumsToAdd.Where(a => a.Covers == null || a.Covers.Count == 0))
                     {
                         var artistUnique = album.Tracks.Select(t => t.ArtistId).Distinct().Count() == 1;
                         var artist = artistUnique ? album.Tracks.First().Artist.Name : " ";
 
                         if (await FetchCover(album.Name, artist))
                         {
-                            album.Cover = new Cover();
+                            album.Covers = new List<Cover>();
 
                             if (File.Exists("Front.jpg"))
                             {
                                 using var frontCover = new MagickImage(File.ReadAllBytes("Front.jpg"));
-                                album.Cover.FrontCover = frontCover.ToByteArray(MagickFormat.Png);
+                                var cover = new Cover
+                                {
+                                    AlbumId = album.AlbumId,
+                                    Type = CoverType.Front,
+                                    CoverImage = frontCover.ToByteArray(MagickFormat.Png)
+                                };
                             }
 
                             if (File.Exists("Back.jpg"))
                             {
                                 using var backCover = new MagickImage(File.ReadAllBytes("Back.jpg"));
-                                album.Cover.BackCover = backCover.ToByteArray(MagickFormat.Png);
+                                var cover = new Cover
+                                {
+                                    AlbumId = album.AlbumId,
+                                    Type = CoverType.Back,
+                                    CoverImage = backCover.ToByteArray(MagickFormat.Png)
+                                };
                             }
                         };
                     }

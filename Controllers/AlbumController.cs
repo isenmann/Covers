@@ -2,11 +2,13 @@
 using Covers.Models.DTOs;
 using Covers.Models.Requests;
 using Covers.Models.Responses;
+using Covers.Persistency.Entities;
 using ImageMagick;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -63,14 +65,14 @@ namespace Covers.Controllers
         public async Task<IActionResult> GetOverviewAsync()
         {
             var albums = await _albumService.GetAsync();
-            var covers = await _coverService.GetCoverAndAlbumIdAsync();
 
             var response = new AlbumOverviewResponse
             {
                 Albums = albums.OrderBy(a=> a.Name).Select(a => new AlbumOverviewDTO
                 {
                     AlbumId = a.AlbumId,
-                    CoverId = covers.FirstOrDefault(x => a.AlbumId == x.Item2)?.Item1 ?? -1,
+                    FrontCoverId = a.Covers.FirstOrDefault(c => c.Type == CoverType.Front)?.CoverId ?? -1,
+                    BackCoverId = a.Covers.FirstOrDefault(c => c.Type == CoverType.Back)?.CoverId ?? -1,
                     AlbumName = a.Name,
                     ArtistName = a.Artist != null ? a.Artist.Name : "Various Artists"
                 }).ToList(),
@@ -80,31 +82,73 @@ namespace Covers.Controllers
             return new OkObjectResult(response);
         }
 
-        [HttpPost("Cover"),
+        [HttpPost("FrontCover"),
          ProducesResponseType(StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status400BadRequest),
          RequestSizeLimit(5242880)]
-        public async Task<IActionResult> AddAlbumCoverAsync([FromForm]AddAlbumCoverRequest request)
+        public async Task<IActionResult> AddAlbumFrontCoverAsync([FromForm]AddAlbumCoverRequest request)
         {
-            var album = await _albumService.GetAsync(request.AlbumId);
+            return await UpdateAlbumCover(request.AlbumId, request.Cover, true);
+        }
+
+        [HttpPost("BackCover"),
+         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status400BadRequest),
+         RequestSizeLimit(5242880)]
+        public async Task<IActionResult> AddAlbumBackCoverAsync([FromForm] AddAlbumCoverRequest request)
+        {
+            return await UpdateAlbumCover(request.AlbumId, request.Cover, false);
+        }
+
+        private async Task<IActionResult> UpdateAlbumCover(long albumId, IFormFile cover, bool front)
+        {
+            var album = await _albumService.GetAsync(albumId);
             if (album == null)
             {
                 return new BadRequestObjectResult("Album not found");
             }
 
-            using var binaryReader = new BinaryReader(request.FrontCover.OpenReadStream());
-            var imageBytes = binaryReader.ReadBytes((int)request.FrontCover.Length);
+            using var binaryReader = new BinaryReader(cover.OpenReadStream());
+            var imageBytes = binaryReader.ReadBytes((int)cover.Length);
             using var image = new MagickImage(imageBytes);
 
-            if (album.Cover == null)
+            if (album.Covers == null)
             {
-                album.Cover = new Persistency.Entities.Cover();
+                album.Covers = new List<Cover>();
             }
-            
-            album.Cover.FrontCover = image.ToByteArray(MagickFormat.Png);
+
+            if (front)
+            {
+                var frontCover = album.Covers.FirstOrDefault(c => c.Type == CoverType.Front);
+                if (frontCover == null)
+                {
+                    frontCover = new Cover
+                    {
+                        AlbumId = albumId,
+                        Type = CoverType.Front
+                    };
+                    album.Covers.Add(frontCover);
+                }
+
+                frontCover.CoverImage = image.ToByteArray(MagickFormat.Png);
+            } 
+            else
+            {
+                var backCover = album.Covers.FirstOrDefault(c => c.Type == CoverType.Back);
+                if (backCover == null)
+                {
+                    backCover = new Cover
+                    {
+                        AlbumId = albumId,
+                        Type = CoverType.Back
+                    };
+                    album.Covers.Add(backCover);
+                }
+
+                backCover.CoverImage = image.ToByteArray(MagickFormat.Png);
+            }
 
             await _albumService.UpdateAsync(album);
-
             return new OkResult();
         }
     }
