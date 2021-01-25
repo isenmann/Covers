@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import axios from 'axios';
+import Rectangle from './Rectangle';
+import Elli from './Ellipse';
+import Measure from 'react-measure';
+import { Stage, Layer } from 'react-konva';
 
 export class CoverModal extends Component {
   static displayName = CoverModal.name;
@@ -16,7 +20,14 @@ export class CoverModal extends Component {
       loading: true, 
       trackIdToPlay: -1,
       selectedFrontCover: null,
-      selectedBackCover: null };
+      selectedBackCover: null,
+      dimensions: {
+        width: -1,
+        height: -1,
+      },
+    rectangles: [],
+  selectedId: null,
+  isRectangleAddingMode: false };
   }
 
   componentDidMount() {
@@ -71,6 +82,36 @@ export class CoverModal extends Component {
     data.append('cover', event.target.files[0]);
     axios.post("Album/BackCover", data, {
     });
+  }
+
+  checkDeselect = (e) => {
+    // deselect when clicked on empty area
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty) {
+      this.setState({ selectedId :  null});
+    }
+
+    if(this.state.isRectangleAddingMode) {
+      const newShapes = this.state.rectangles.slice();
+        newShapes.push({
+          x: e.evt.layerX,
+          y: e.evt.layerY,
+          width: 40,
+          height: 40,
+          fill: '#BBDEFB80',
+          id: this.state.rectangles.length + 1,
+          rotation: 0
+        });
+
+        this.setState({rectangles: newShapes});
+    }
+  };
+
+  handleCheckboxChange = () => {
+    // toggle drawing mode
+    this.setState({
+      isRectangleAddingMode: !this.state.isRectangleAddingMode,
+    })
   }
 
   render() {
@@ -132,9 +173,47 @@ export class CoverModal extends Component {
           </div>
 
           {this.state.backCoverId > 0 ? 
-            <div className="col-6 coverImageModalDialog" 
+          <Measure
+          bounds
+          onResize={contentRect => {
+            this.setState({ dimensions: contentRect.bounds });
+            console.log(contentRect.bounds);
+          }}
+        >
+          {({ measureRef }) => (
+            <div ref={measureRef} className="col-6 coverImageModalDialog" 
                 style={{backgroundImage: `url('${backCover}')`}}>
+                  <input type="checkbox" checked={this.state.isRectangleAddingMode} onChange={this.handleCheckboxChange}/>
+                  <label>Rectangles</label>
+                  <Stage
+                    width={this.state.dimensions.width}
+                    height={this.state.dimensions.height}
+                    onMouseDown={this.checkDeselect}
+                    onTouchStart={this.checkDeselect}
+                    >
+                      <Layer>
+                          {this.state.rectangles.map((rect, i) => {
+                          return (
+                              <Rectangle
+                              key={i}
+                              shapeProps={rect}
+                              isSelected={rect.id === this.state.selectedId}
+                              onSelect={() => {
+                                this.setState({ selectedId : rect.id});
+                              }}
+                              onChange={(newAttrs) => {
+                                  const rects = this.state.rectangles.slice();
+                                  rects[i] = newAttrs;
+                                  this.setState({ rectangles : rects});
+                              }}
+                              />
+                          );
+                          })}
+                      </Layer>
+                   </Stage>
             </div>
+            )}
+            </Measure>
           :
           <div className="col-6 tracklist">
             {contents}
