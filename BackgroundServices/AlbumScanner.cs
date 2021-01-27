@@ -198,6 +198,7 @@ namespace Covers.BackgroundServices
                                     Type = CoverType.Front,
                                     CoverImage = frontCover.ToByteArray(MagickFormat.Png)
                                 };
+                                album.Covers.Add(cover);
                             }
 
                             if (File.Exists("Back.jpg"))
@@ -209,6 +210,7 @@ namespace Covers.BackgroundServices
                                     Type = CoverType.Back,
                                     CoverImage = backCover.ToByteArray(MagickFormat.Png)
                                 };
+                                album.Covers.Add(cover);
                             }
                         };
                     }
