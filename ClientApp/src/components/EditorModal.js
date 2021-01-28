@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
+import 'react-h5-audio-player/lib/styles.css';
 import axios from 'axios';
 import Rectangle from './Rectangle';
 import Elli from './Ellipse';
 import Measure from 'react-measure';
 import { Stage, Layer } from 'react-konva';
-import Modal from 'react-modal';
-import { EditorModal } from './EditorModal';
 
-export class CoverModal extends Component {
-  static displayName = CoverModal.name;
+export class EditorModal extends Component {
+  static displayName = EditorModal.name;
 
   constructor(props) {
     super(props);
@@ -16,25 +15,19 @@ export class CoverModal extends Component {
       albumId: props.albumId, 
       frontCoverId: props.frontCoverId, 
       backCoverId: props.backCoverId,
-      albumData: [],
-      trackIdToPlay: props.trackIdToPlay,
-      loading: true,
+      albumData: [], 
+      loading: true, 
+      trackIdToPlay: -1,
       selectedFrontCover: null,
       selectedBackCover: null,
       dimensions: {
         width: -1,
         height: -1,
       },
-      rectangles: [],
-      selectedId: null,
-      isRectangleAddingMode: false,
-      openEditor: false };
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.trackIdToPlay !== prevProps.trackIdToPlay) {
-      this.setState({ trackIdToPlay: this.props.trackIdToPlay });
-    }
+    rectangles: [],
+  selectedId: null,
+  isRectangleAddingMode: false,
+openEditor: false };
   }
 
   componentDidMount() {
@@ -45,24 +38,34 @@ export class CoverModal extends Component {
     const response = await fetch(`Album/${this.state.albumId}`);
     const albumData = await response.json();
     const album = {
-        albumId: albumData.albumId,
         name : albumData.name,
         artist : albumData.artist,
         tracks : []
     };
     let i = 0;
 
-    albumData.tracks.forEach(track => {
-      album.tracks.push({
-        key: (i++).toString(),
-        trackId: track.trackId,
-        number: track.number,
-        name: track.name,
-        artist: track.artist
-      })
-    });
+    // albumData.tracks.forEach(track => {
+    //   album.tracks.push({
+    //     key: (i++).toString(),
+    //     trackId: track.trackId,
+    //     number: track.number,
+    //     name: track.name,
+    //     artist: track.artist
+    //   })
+    // });
 
-    this.setState({ albumData: album, loading: false });
+    //this.setState({ albumData: album, loading: false });
+  }
+
+  play(trackId) {
+    this.setState({trackIdToPlay: trackId});
+  }
+
+  nextTrack() {
+    let trackArrayIndex = this.state.albumData.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
+    if(this.state.albumData.tracks.length > trackArrayIndex + 1){
+      this.play(this.state.albumData.tracks[trackArrayIndex + 1].trackId);
+    }
   }
 
   onChangeFrontCoverHandler=event=>{
@@ -111,11 +114,6 @@ export class CoverModal extends Component {
     })
   }
 
-  hideEditorModal = () => {
-    this.setState({ 
-      openEditor: false});
-  };
-
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
@@ -131,14 +129,12 @@ export class CoverModal extends Component {
             {this.state.albumData.tracks.map(track =>
               {
                 if(track.trackId === this.state.trackIdToPlay){
-                return <tr className="tablerow" style={{background: 'gold'}} 
-                key={track.trackId}
-                 onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, this.state.albumData)}}>
+                return <tr className="tablerow"style={{background: 'gold'}} key={track.trackId} onClick={() => this.play(track.trackId)}>
                   <td>{track.number}</td>
                   <td>{track.name}</td>
                 </tr>
                 }else{
-                  return <tr className="tablerow" key={track.trackId} onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, this.state.albumData)}}>
+                  return <tr className="tablerow" key={track.trackId} onClick={() => this.play(track.trackId)}>
                   <td>{track.number}</td>
                   <td>{track.name}</td>
                 </tr>
@@ -162,16 +158,13 @@ export class CoverModal extends Component {
       <div className="container-fluid h-100">
         
         <div className="row h-5">
-            <h5>{this.state.albumData.artist} - {this.state.albumData.name}</h5> 
-            <svg onClick={() => { this.setState({ openEditor : true}); }} className="open-editor-icon" viewBox="0 0 24 24">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-            </svg>
+            <h5>{this.state.albumData.artist} - {this.state.albumData.name}</h5>
             <svg onClick={this.props.hideModal} className="modal-close-icon" viewBox="0 0 24 24">
               <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
             </svg>
         </div>
 
-        <div className="row h-95 flexwrapOff">
+        <div className="row h-80 flexwrapOff">
           <input className="inputFile" style={{overflow: "hidden"}} type="file" name="frontCover" id="frontCover" onChange={this.onChangeFrontCoverHandler}/>
           <div className="col-6 coverImageModalDialog" 
                style={{backgroundImage: `url('${frontCover}')`}}>
@@ -228,15 +221,11 @@ export class CoverModal extends Component {
           }
           
         </div>
-
-        <Modal
-          isOpen={this.state.openEditor}
-          onRequestClose={this.hideEditorModal}
-          contentLabel="My dialog"
-          overlayClassName="coverModalOverlay"
-          closeTimeoutMS={500}>
-            <EditorModal hideModal={this.hideEditorModal}></EditorModal>
-        </Modal>
+        <div className="row h-15">
+          <div className="col-12 d-flex align-self-end">
+            
+          </div>
+        </div>
       </div>
     );
   }

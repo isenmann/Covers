@@ -55,6 +55,10 @@ code {
   flex-wrap: nowrap;
 }
 
+.h-95 {
+	height: 95%;
+  }
+
 .h-80 {
   height: 80%;
 }
@@ -84,6 +88,16 @@ code {
   cursor: pointer;
 }
 
+.open-editor-icon {
+	margin: 5px;
+	width: 24px;
+	height: 24px;
+	stroke: grey;
+	fill: grey;
+	background: transparent;
+	cursor: pointer;
+  }
+
 .tablerow {
   cursor: pointer;
 }
@@ -93,7 +107,7 @@ code {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 60px;
   background-color: rgba(0, 0, 0, 0.75);
 }
 

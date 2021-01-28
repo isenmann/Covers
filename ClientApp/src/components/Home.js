@@ -3,6 +3,8 @@ import Gallery from 'react-photo-gallery';
 import Modal from 'react-modal';
 import { CoverModal } from './CoverModal';
 import OverviewCover from './OverviewCover';
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 Modal.setAppElement("#root");
 
@@ -15,8 +17,24 @@ export class Home extends Component {
       loading: true,
       isCoverModalOpen: false,
       albumIdForModal: -1,
-      coverIdForModal: -1 };
+      coverIdForModal: -1,
+      trackIdToPlay: -1,
+      albumToPlay: null, };
   }
+
+  footerStyle = {
+    backgroundColor: "#E7E7E7CC",
+    fontSize: "20px",
+    color: "black",
+    borderTop: "1px solid #E7E7E7",
+    textAlign: "center",
+    position: "fixed",
+    left: "0",
+    bottom: "0",
+    height: "60px",
+    width: "100%",
+    zIndex: 100
+  };
 
   componentDidMount() {
     this.populateAlbumData();
@@ -67,6 +85,17 @@ export class Home extends Component {
       backCoverIdForModal: -1});
   };
 
+  play = (trackId, album) => {
+    this.setState({trackIdToPlay: trackId, albumToPlay: album});
+  }
+
+  nextTrack() {
+    let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
+    if(this.state.albumToPlay.tracks.length > trackArrayIndex + 1){
+        this.play(this.state.albumToPlay.tracks[trackArrayIndex + 1].trackId, this.state.albumToPlay);
+    }
+  }
+
   render () {
     return (
       <div>
@@ -81,8 +110,23 @@ export class Home extends Component {
           // className="coverModal"
           overlayClassName="coverModalOverlay"
           closeTimeoutMS={500}>
-            <CoverModal albumId={this.state.albumIdForModal} frontCoverId={this.state.frontCoverIdForModal} backCoverId={this.state.backCoverIdForModal} hideModal={this.hideModal}/>
+            <CoverModal albumId={this.state.albumIdForModal} 
+            frontCoverId={this.state.frontCoverIdForModal} 
+            backCoverId={this.state.backCoverIdForModal} 
+            hideModal={this.hideModal}
+            onPlay={this.play}
+            trackIdToPlay={this.state.trackIdToPlay}/>
         </Modal>
+
+        <div>
+        {/* <div style={phantomStyle} /> */}
+         <div style={this.footerStyle}>
+          <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
+              customAdditionalControls={[]}
+              src={`Track/${this.state.trackIdToPlay}`}
+              onEnded={e => this.nextTrack()} />
+          </div>
+        </div>
       </div>
     );
   }
