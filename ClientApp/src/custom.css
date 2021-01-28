@@ -33,6 +33,16 @@ code {
   background-size: contain;
 }
 
+.playerThumbCover {
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	width: 40px;
+	height: 40px;
+	margin-right: 50px;
+	cursor: pointer;
+  }
+
 .imageButton {
   cursor: pointer;
 }

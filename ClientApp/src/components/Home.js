@@ -3,7 +3,7 @@ import Gallery from 'react-photo-gallery';
 import Modal from 'react-modal';
 import { CoverModal } from './CoverModal';
 import OverviewCover from './OverviewCover';
-import AudioPlayer from 'react-h5-audio-player';
+import AudioPlayer, {RHAP_UI} from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 
 Modal.setAppElement("#root");
@@ -19,7 +19,8 @@ export class Home extends Component {
       albumIdForModal: -1,
       coverIdForModal: -1,
       trackIdToPlay: -1,
-      albumToPlay: null, };
+      albumToPlay: null,
+      playerCover: "" };
   }
 
   footerStyle = {
@@ -80,19 +81,29 @@ export class Home extends Component {
   hideModal = () => {
     this.setState({ 
       isCoverModalOpen: false,
-      albumIdForModal: -1,
-      frontCoverIdForModal: -1,
-      backCoverIdForModal: -1});
+      // albumIdForModal: -1,
+      // frontCoverIdForModal: -1,
+      // backCoverIdForModal: -1
+    });
   };
 
   play = (trackId, album) => {
-    this.setState({trackIdToPlay: trackId, albumToPlay: album});
+    this.setState({trackIdToPlay: trackId, albumToPlay: album, playerCover: `Cover/${this.state.frontCoverIdForModal}`});
   }
 
   nextTrack() {
     let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
     if(this.state.albumToPlay.tracks.length > trackArrayIndex + 1){
         this.play(this.state.albumToPlay.tracks[trackArrayIndex + 1].trackId, this.state.albumToPlay);
+    }
+  }
+
+  previousTrack() {
+    let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
+    if(trackArrayIndex - 1 >= 0){
+        this.play(this.state.albumToPlay.tracks[trackArrayIndex - 1].trackId, this.state.albumToPlay);
+    }else{
+      this.play(this.state.albumToPlay.tracks[trackArrayIndex].trackId, this.state.albumToPlay);
     }
   }
 
@@ -124,7 +135,11 @@ export class Home extends Component {
           <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
               customAdditionalControls={[]}
               src={`Track/${this.state.trackIdToPlay}`}
-              onEnded={e => this.nextTrack()} />
+              onEnded={e => this.nextTrack()}
+              onClickNext={e => this.nextTrack()}
+              onClickPrevious={e => this.previousTrack()}
+              customVolumeControls={[<div className="playerThumbCover" style={{backgroundImage: `url('${this.state.playerCover}')`}} onClick={() => this.openCoverModal(this.state.albumIdForModal, this.state.frontCoverIdForModal, this.state.backCoverIdForModal)}/>, RHAP_UI.VOLUME]} 
+              showSkipControls={true}/>
           </div>
         </div>
       </div>
