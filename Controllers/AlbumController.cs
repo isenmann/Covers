@@ -83,7 +83,7 @@ namespace Covers.Controllers
         }
 
         [HttpPost("FrontCover"),
-         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CoverAddedResponse)),
          ProducesResponseType(StatusCodes.Status400BadRequest),
          RequestSizeLimit(5242880)]
         public async Task<IActionResult> AddAlbumFrontCoverAsync([FromForm]AddAlbumCoverRequest request)
@@ -92,7 +92,7 @@ namespace Covers.Controllers
         }
 
         [HttpPost("BackCover"),
-         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CoverAddedResponse)),
          ProducesResponseType(StatusCodes.Status400BadRequest),
          RequestSizeLimit(5242880)]
         public async Task<IActionResult> AddAlbumBackCoverAsync([FromForm] AddAlbumCoverRequest request)
@@ -120,36 +120,53 @@ namespace Covers.Controllers
             if (front)
             {
                 var frontCover = album.Covers.FirstOrDefault(c => c.Type == CoverType.Front);
-                if (frontCover == null)
+                if (frontCover != null)
                 {
-                    frontCover = new Cover
-                    {
-                        AlbumId = albumId,
-                        Type = CoverType.Front
-                    };
-                    album.Covers.Add(frontCover);
+                    await _coverService.DeleteCoverAsync(frontCover);
                 }
 
-                frontCover.CoverImage = image.ToByteArray(MagickFormat.Png);
-            } 
+                frontCover = new Cover
+                {
+                    AlbumId = albumId,
+                    Type = CoverType.Front,
+                    CoverImage = image.ToByteArray(MagickFormat.Png)
+                };
+                album.Covers.Add(frontCover);
+            }
             else
             {
                 var backCover = album.Covers.FirstOrDefault(c => c.Type == CoverType.Back);
-                if (backCover == null)
+                if (backCover != null)
                 {
-                    backCover = new Cover
-                    {
-                        AlbumId = albumId,
-                        Type = CoverType.Back
-                    };
-                    album.Covers.Add(backCover);
+                    await _coverService.DeleteCoverAsync(backCover);
                 }
 
-                backCover.CoverImage = image.ToByteArray(MagickFormat.Png);
+                backCover = new Cover
+                {
+                    AlbumId = albumId,
+                    Type = CoverType.Back,
+                    CoverImage = image.ToByteArray(MagickFormat.Png)
+                };
+                album.Covers.Add(backCover);
             }
 
             await _albumService.UpdateAsync(album);
-            return new OkResult();
+            long? coverId = -1;
+            if (front)
+            {
+                coverId = album.Covers.FirstOrDefault(c => c.Type == CoverType.Front)?.CoverId;
+            }
+            else
+            {
+                coverId = album.Covers.FirstOrDefault(c => c.Type == CoverType.Back)?.CoverId;
+            }
+
+            var response = new CoverAddedResponse
+            {
+                CoverId = coverId ?? -1
+            };
+
+            return new OkObjectResult(response);
         }
     }
 }

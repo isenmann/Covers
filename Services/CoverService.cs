@@ -36,5 +36,18 @@ namespace Covers.Services
         {
             return await _context.Covers.AsNoTracking().Skip((pageNumber - 1) * 40).Take(40).ToListAsync();
         }
+
+        public async Task DeleteCoverAsync(Cover cover)
+        {
+            _context.Covers.Remove(cover);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteCoverAsync(long id)
+        {
+            var cover = await _context.Covers.FindAsync(id);
+            _context.Covers.Remove(cover);
+            await _context.SaveChangesAsync();
+        }
     }
 }

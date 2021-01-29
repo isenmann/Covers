@@ -80,15 +80,25 @@ export class Home extends Component {
 
   hideModal = () => {
     this.setState({ 
-      isCoverModalOpen: false,
-      // albumIdForModal: -1,
-      // frontCoverIdForModal: -1,
-      // backCoverIdForModal: -1
+      isCoverModalOpen: false
     });
   };
 
   play = (trackId, album) => {
     this.setState({trackIdToPlay: trackId, albumToPlay: album, playerCover: `Cover/${this.state.frontCoverIdForModal}`});
+  }
+
+  frontCoverUpdated = (albumId, coverId) => {
+    let album = this.state.albums.find(album => album.albumId === albumId);
+    album.frontCoverId = coverId;
+    album.src = `/Cover/${album.frontCoverId}?scaled=true`;
+    this.setState({albums: this.state.albums});
+  }
+
+  backCoverUpdated = (albumId, coverId) => {
+    let album = this.state.albums.find(album => album.albumId === albumId);
+    album.backCoverId = coverId;
+    this.setState({albums: this.state.albums});
   }
 
   nextTrack() {
@@ -118,7 +128,6 @@ export class Home extends Component {
           isOpen={this.state.isCoverModalOpen}
           onRequestClose={this.hideModal}
           contentLabel="My dialog"
-          // className="coverModal"
           overlayClassName="coverModalOverlay"
           closeTimeoutMS={500}>
             <CoverModal albumId={this.state.albumIdForModal} 
@@ -126,11 +135,12 @@ export class Home extends Component {
             backCoverId={this.state.backCoverIdForModal} 
             hideModal={this.hideModal}
             onPlay={this.play}
+            onFrontCoverUpdated={this.frontCoverUpdated}
+            onBackCoverUpdated={this.backCoverUpdated}
             trackIdToPlay={this.state.trackIdToPlay}/>
         </Modal>
 
         <div>
-        {/* <div style={phantomStyle} /> */}
          <div style={this.footerStyle}>
           <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
               customAdditionalControls={[]}

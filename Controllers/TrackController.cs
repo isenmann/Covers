@@ -24,8 +24,8 @@ namespace Covers.Controllers
         [HttpGet("{id}"),
          ProducesResponseType(StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status404NotFound),
-         Produces("audio/mpeg"),
-         ResponseCache(Duration = 86400)]
+         Produces("audio/mpeg")
+         /*ResponseCache(Duration = 86400)*/]
         public async Task<IActionResult> GetTrack(long id)
         {
             var track = await _trackService.GetAsync(id);

@@ -47,8 +47,8 @@ namespace Covers.Controllers
         [HttpGet("{id}"),
          ProducesResponseType(StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status404NotFound),
-         Produces("image/png"),
-         ResponseCache(Duration = 86400)]
+         Produces("image/png")
+         /*ResponseCache(Duration = 86400)*/]
         public async Task<IActionResult> GetCoverAsync(long id, [FromQuery]bool scaled)
         {
             var cover = await _coverService.GetAsync(id);
