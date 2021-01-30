@@ -118,7 +118,9 @@ export class Home extends Component {
   }
 
   render () {
-    return (
+    let content = this.state.loading
+    ? <p><em>Loading information from server, please wait...</em></p>
+    : (
       <div>
         <div className={!this.state.isCoverModalOpen ? "OverViewFadeIn" : "OverViewFadeOut"}>
         {/* <Gallery direction={"column"} columns="2" renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} /> */}
@@ -153,6 +155,12 @@ export class Home extends Component {
               showSkipControls={true}/>
           </div>
         </div>
+      </div>
+      );
+
+    return (
+      <div>
+        {content}
       </div>
     );
   }

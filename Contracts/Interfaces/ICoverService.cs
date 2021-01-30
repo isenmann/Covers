@@ -9,7 +9,6 @@ namespace Covers.Contracts.Interfaces
     {
         Task<List<Cover>> GetAsync();
         Task<Cover> GetAsync(long id);
-        Task<List<Cover>> GetPagedAsync(int pageNumber);
         Task<List<Tuple<long, long>>> GetCoverAndAlbumIdAsync();
         Task DeleteCoverAsync(Cover cover);
         Task DeleteCoverAsync(long id);

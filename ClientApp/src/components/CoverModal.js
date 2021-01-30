@@ -165,7 +165,6 @@ export class CoverModal extends Component {
    
     return (
       <div className="container-fluid h-100">
-        
         <div className="row h-5">
             <h5>{this.state.albumData.artist} - {this.state.albumData.name}</h5> 
             {/* edit button to open the editor modal

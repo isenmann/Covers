@@ -111,6 +111,10 @@ namespace Covers.Controllers
             using var binaryReader = new BinaryReader(cover.OpenReadStream());
             var imageBytes = binaryReader.ReadBytes((int)cover.Length);
             using var image = new MagickImage(imageBytes);
+            if (image.Width > 800)
+            {
+                image.Scale(new MagickGeometry { IgnoreAspectRatio = false, Width = 800 });
+            }
 
             if (album.Covers == null)
             {

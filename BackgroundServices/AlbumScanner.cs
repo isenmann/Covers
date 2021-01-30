@@ -192,6 +192,11 @@ namespace Covers.BackgroundServices
                             if (File.Exists("Front.jpg"))
                             {
                                 using var frontCover = new MagickImage(File.ReadAllBytes("Front.jpg"));
+                                if (frontCover.Width > 800)
+                                {
+                                    frontCover.Scale(new MagickGeometry { IgnoreAspectRatio = false, Width = 800 });
+                                }
+
                                 var cover = new Cover
                                 {
                                     AlbumId = album.AlbumId,
@@ -204,6 +209,11 @@ namespace Covers.BackgroundServices
                             if (File.Exists("Back.jpg"))
                             {
                                 using var backCover = new MagickImage(File.ReadAllBytes("Back.jpg"));
+                                if(backCover.Width > 800) 
+                                {
+                                    backCover.Scale(new MagickGeometry { IgnoreAspectRatio = false, Width = 800 }); 
+                                }
+                                
                                 var cover = new Cover
                                 {
                                     AlbumId = album.AlbumId,

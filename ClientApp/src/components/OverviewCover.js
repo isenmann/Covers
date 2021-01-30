@@ -18,7 +18,7 @@ const OverviewCover = ({ index, onClick, photo: cover, margin, direction, top, l
   };
 
   return (
-    <div style={tilestyle}>
+    <div key={key + "tile"} style={tilestyle}>
       <div key={key} className="gallery-tile" onClick={onClick ? handleClick : null}>
           <div className="picture-info">
                 <h5>{cover.albumName}</h5>
