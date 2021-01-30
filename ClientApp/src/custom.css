@@ -43,6 +43,15 @@ code {
 	cursor: pointer;
   }
 
+  .tooltipThumbCover {
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	width: 200px;
+	height: 200px;
+	margin-top: 10px;
+  }
+
 .imageButton {
   cursor: pointer;
 }
@@ -72,6 +81,10 @@ code {
 .h-80 {
   height: 80%;
 }
+
+.h-33 {
+	height: 33%;
+  }
 
 .h-20 {
   height: 20%;

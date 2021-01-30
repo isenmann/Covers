@@ -5,6 +5,7 @@ import { CoverModal } from './CoverModal';
 import OverviewCover from './OverviewCover';
 import AudioPlayer, {RHAP_UI} from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import ReactTooltip from "react-tooltip";
 
 Modal.setAppElement("#root");
 
@@ -70,12 +71,16 @@ export class Home extends Component {
     this.setState({ albums: covers, loading: false });
   }
 
-  openCoverModal(albumId, frontCoverId, backCoverId) {
+  toggleCoverModal(albumId, frontCoverId, backCoverId) {
+    if(this.state.isCoverModalOpen){
+      this.hideModal();
+    }else{
       this.setState({ 
         isCoverModalOpen: true,
         albumIdForModal: albumId,
         frontCoverIdForModal: frontCoverId,
         backCoverIdForModal: backCoverId});
+      }
   }
 
   hideModal = () => {
@@ -118,13 +123,51 @@ export class Home extends Component {
   }
 
   render () {
+    let thumbCover = 
+        <a data-tip data-for="registerTip">
+          <div className="playerThumbCover" 
+            style={{backgroundImage: `url('${this.state.playerCover}')`}} 
+            onClick={() => this.toggleCoverModal(this.state.albumIdForModal, this.state.frontCoverIdForModal, this.state.backCoverIdForModal)}>
+      
+          </div>
+        </a>;
+
+    
+    let tooltip= "";
+    if(this.state.albumToPlay){
+      let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
+      tooltip = (
+      <div className="container-fluid h-100">
+        <div className="row h-100">
+        <div className="col-5">
+          <div className="tooltipThumbCover" 
+              style={{backgroundImage: `url('${this.state.playerCover}')`}}>
+            </div>
+        </div>
+        <div className="col-2"></div>
+        <div className="col-5">
+          <div className="row h-33">
+            <p>{this.state.albumToPlay.artist}</p>
+          </div>
+          <div className="row h-33">
+            <p>{this.state.albumToPlay.name}</p>
+          </div>
+          <div className="row h-33">
+            <p>{this.state.albumToPlay.tracks[trackArrayIndex].name}</p>
+          </div>
+        </div>
+        </div>
+      </div>
+      );
+    }
+
     let content = this.state.loading
     ? <p><em>Loading information from server, please wait...</em></p>
     : (
       <div>
         <div className={!this.state.isCoverModalOpen ? "OverViewFadeIn" : "OverViewFadeOut"}>
-        {/* <Gallery direction={"column"} columns="2" renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} /> */}
-          <Gallery direction={"column"} renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} />
+        {/* <Gallery direction={"column"} columns="2" renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.toggleCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} /> */}
+          <Gallery direction={"column"} renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.toggleCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} />
         </div> 
 
         <Modal
@@ -151,15 +194,24 @@ export class Home extends Component {
               onEnded={e => this.nextTrack()}
               onClickNext={e => this.nextTrack()}
               onClickPrevious={e => this.previousTrack()}
-              customVolumeControls={[<div className="playerThumbCover" style={{backgroundImage: `url('${this.state.playerCover}')`}} onClick={() => this.openCoverModal(this.state.albumIdForModal, this.state.frontCoverIdForModal, this.state.backCoverIdForModal)}/>, RHAP_UI.VOLUME]} 
+              customVolumeControls={[thumbCover, RHAP_UI.VOLUME]} 
               showSkipControls={true}/>
           </div>
         </div>
+        <ReactTooltip id="registerTip" place="top" effect="solid"  
+                      overridePosition={ (
+                          { left, top },
+                          currentEvent, currentTarget, node) => {
+                          left = left - 25;
+                          return { top, left }}}>
+          {tooltip}
+        </ReactTooltip>
       </div>
       );
 
     return (
       <div>
+        
         {content}
       </div>
     );
