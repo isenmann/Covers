@@ -178,12 +178,7 @@ body, html, #app {
 	}
 }
 
-.gallery {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: left;
-	padding: 0.05em;
-}
+
 
 .gallery-tile {
 	margin: 0.05em;

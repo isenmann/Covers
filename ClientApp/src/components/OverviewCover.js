@@ -5,10 +5,12 @@ const imgWithClick = { cursor: 'pointer' };
 
 const OverviewCover = ({ index, onClick, photo: cover, margin, direction, top, left, key }) => {
   const imgStyle = { /*margin: margin,*/ display: 'block' };
+  const tilestyle = { /*margin: margin,*/ display: 'block' };
+
   if (direction === 'column') {
-    imgStyle.position = 'absolute';
-    imgStyle.left = left;
-    imgStyle.top = top;
+    tilestyle.position = 'absolute';
+    tilestyle.left = left;
+    tilestyle.top = top;
   }
 
   const handleClick = event => {
@@ -16,18 +18,19 @@ const OverviewCover = ({ index, onClick, photo: cover, margin, direction, top, l
   };
 
   return (
-    <div key={key} className="gallery-tile" onClick={onClick ? handleClick : null}>
-        <div className="picture-info">
-              <h5>{cover.albumName}</h5>
-              <p>{cover.artistName}</p>
-        </div>
-        <img
-        className="tile-image"
-        key={key}
-        style={onClick ? { ...imgStyle, ...imgWithClick } : imgStyle}
-        {...cover}
-        
-        />
+    <div style={tilestyle}>
+      <div key={key} className="gallery-tile" onClick={onClick ? handleClick : null}>
+          <div className="picture-info">
+                <h5>{cover.albumName}</h5>
+                <p>{cover.artistName}</p>
+          </div>
+          <img
+          // className="tile-image"
+          key={key}
+          style={onClick ? { ...imgStyle, ...imgWithClick } : imgStyle}
+          {...cover}
+          />
+      </div>
     </div>
   );
 };

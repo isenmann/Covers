@@ -121,7 +121,8 @@ export class Home extends Component {
     return (
       <div>
         <div className={!this.state.isCoverModalOpen ? "OverViewFadeIn" : "OverViewFadeOut"}>
-          <Gallery renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} />
+        {/* <Gallery direction={"column"} columns="2" renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} /> */}
+          <Gallery direction={"column"} renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} />
         </div> 
 
         <Modal
