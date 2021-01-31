@@ -5,6 +5,7 @@ import { CoverModal } from './CoverModal';
 import OverviewCover from './OverviewCover';
 import AudioPlayer, {RHAP_UI} from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import CoversService from '../services/CoversHubService'
 
 Modal.setAppElement("#root");
 
@@ -20,7 +21,16 @@ export class Home extends Component {
       coverIdForModal: -1,
       trackIdToPlay: -1,
       albumToPlay: null,
-      playerCover: "" };
+      playerCover: "",
+      processedText: "" };
+
+      CoversService.registerAlbumUpdates(() => {
+        this.fetchAlbumData();
+    });
+
+    CoversService.registerProcessing((text) => {
+      this.setState({processedText: text});
+  });
   }
 
   footerStyle = {
@@ -38,10 +48,10 @@ export class Home extends Component {
   };
 
   componentDidMount() {
-    this.populateAlbumData();
+    this.fetchAlbumData();
   }
 
-  async populateAlbumData() {
+  async fetchAlbumData() {
     const response = await fetch('Album/Overview');
     const data = await response.json();
     const covers = [];
@@ -121,6 +131,8 @@ export class Home extends Component {
     let content = this.state.loading
     ? <p><em>Loading information from server, please wait...</em></p>
     : (
+      this.state.albums.length > 0
+      ?
       <div>
         <div className={!this.state.isCoverModalOpen ? "OverViewFadeIn" : "OverViewFadeOut"}>
         {/* <Gallery direction={"column"} columns="2" renderImage={OverviewCover} photos={this.state.albums} onClick={(event, photo) => {this.openCoverModal(photo.photo.albumId, photo.photo.frontCoverId, photo.photo.backCoverId)}} /> */}
@@ -156,7 +168,22 @@ export class Home extends Component {
           </div>
         </div>
       </div>
-      );
+      : (
+        <div class="initialStartPage">
+          <div class="center">
+              <img src="placeholder.png" width="400px"/>
+          </div>
+          <div class="center">
+              <p><em>No albums found...(yet)</em></p></div>
+          <div class="center">
+              <p><em>If you have started Covers for the first time, then it will take some time to process your music library</em></p>
+          </div>
+          <div class="center">
+              <p><em>{this.state.processedText}</em></p>
+          </div>
+        </div>
+      )
+    );
 
     return (
       <div>

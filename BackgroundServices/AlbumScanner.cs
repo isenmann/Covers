@@ -1,6 +1,8 @@
 ﻿using Covers.Contracts.Interfaces;
+using Covers.Hubs;
 using Covers.Persistency.Entities;
 using ImageMagick;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -45,10 +47,14 @@ namespace Covers.BackgroundServices
                 var albumService = scope.ServiceProvider.GetRequiredService<IAlbumService>();
                 var artistService = scope.ServiceProvider.GetRequiredService<IArtistService>();
                 var trackService = scope.ServiceProvider.GetRequiredService<ITrackService>();
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<CoversHub>>();
                 var existingAlbums = await albumService.GetAsync();
-
                 existingAlbums.Where(a => !Directory.Exists(a.Path)).ToList().ForEach(async album => await albumService.DeleteAsync(album));
-                existingAlbums.RemoveAll(a => !Directory.Exists(a.Path));
+                var count = existingAlbums.RemoveAll(a => !Directory.Exists(a.Path));
+                if(count > 0)
+                {
+                    await hubContext.Clients.All.SendAsync("AlbumUpdates");
+                }
 
                 var exisitingArtists = await artistService.GetAsync();
                 var exisitingTracks = await trackService.GetAsync();
@@ -58,6 +64,7 @@ namespace Covers.BackgroundServices
 
                 foreach (var file in Directory.EnumerateFiles(_musicDirectory.FullName, "*.mp3", SearchOption.AllDirectories))
                 {
+                    await hubContext.Clients.All.SendAsync("Processing", $"Processing file: {file}");
                     using var taglibFile = TagLib.File.Create(file);
                     var existingAlbum = existingAlbums.FirstOrDefault(a => a.Name == taglibFile.Tag.Album);
                     var existingArtist = exisitingArtists.FirstOrDefault(a => a.Name == string.Join(",", taglibFile.Tag.Performers));
@@ -182,6 +189,7 @@ namespace Covers.BackgroundServices
                 {
                     foreach (var album in albumsToAdd.Where(a => a.Covers == null || a.Covers.Count == 0))
                     {
+                        await hubContext.Clients.All.SendAsync("Processing", $"Fetching album cover: {album.Name}");
                         var artistUnique = album.Tracks.Select(t => t.ArtistId).Distinct().Count() == 1;
                         var artist = artistUnique ? album.Tracks.First().Artist.Name : " ";
 
@@ -225,7 +233,9 @@ namespace Covers.BackgroundServices
                         };
                     }
 
+                    await hubContext.Clients.All.SendAsync("Processing", $"Done...");
                     await albumService.AddAsync(albumsToAdd);
+                    await hubContext.Clients.All.SendAsync("AlbumUpdates");
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
