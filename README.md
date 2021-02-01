@@ -3,6 +3,8 @@
 Covers is a browser based network music player for album art lovers. 
 Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI.
 
+<img src="https://lh3.googleusercontent.com/pw/ACtC-3esfg585AU3HQkJWyIFUtjbh-x81DaCvlypm0UZcLEzvL0gFaO1M-d5WKDFfRLGlfVJG-ERutPAbmD2rCwshAy4P3p1tbZFfTmeJ462Q2hb1aWKr4i8eXWsMTOWPAr4a6vgs-IP7iHF6BXCcYKEm1Ie6Q=w1119-h815-no" />
+
 ## Features
 * network music player for your local music library
 * play your music on any device with a browser
@@ -11,9 +13,6 @@ Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI
 * especially for album lovers, no shuffle over the whole music library, just the album
 * automatically album cover art import from different sources (using the [Album Art Downloader](https://sourceforge.net/projects/album-art/)) or importing them from the ID3 tags of your files
 * the local music library won't be altered in any way
-
-## Screenshots
-<img src="https://lh3.googleusercontent.com/pw/ACtC-3esfg585AU3HQkJWyIFUtjbh-x81DaCvlypm0UZcLEzvL0gFaO1M-d5WKDFfRLGlfVJG-ERutPAbmD2rCwshAy4P3p1tbZFfTmeJ462Q2hb1aWKr4i8eXWsMTOWPAr4a6vgs-IP7iHF6BXCcYKEm1Ie6Q=w1119-h815-no" />
 
 ## Installation
 
