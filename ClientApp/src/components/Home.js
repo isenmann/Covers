@@ -59,14 +59,17 @@ export class Home extends Component {
 
     data.albums.forEach(element => {
       let coverSrc = "placeholder.png";
+      let placeholderLazyImage = "placeholder.png";
       if(element.frontCoverId > 0)
       {
-        coverSrc = `/Cover/${element.frontCoverId}?scaled=true`;
+        coverSrc = `/Cover/${element.frontCoverId}?size=500`;
+        placeholderLazyImage = `/Cover/${element.frontCoverId}?size=100`;
       }
 
       covers.push({
         key: (i++).toString(),
         src: coverSrc,
+        placeholder: placeholderLazyImage,
         width: 1,
         height: 1,
         frontCoverId: element.frontCoverId,
@@ -101,7 +104,7 @@ export class Home extends Component {
   frontCoverUpdated = (albumId, coverId) => {
     let album = this.state.albums.find(album => album.albumId === albumId);
     album.frontCoverId = coverId;
-    album.src = `/Cover/${album.frontCoverId}?scaled=true`;
+    album.src = `/Cover/${album.frontCoverId}?size=500`;
     this.setState({albums: this.state.albums});
   }
 

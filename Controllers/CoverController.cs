@@ -49,7 +49,7 @@ namespace Covers.Controllers
          ProducesResponseType(StatusCodes.Status404NotFound),
          Produces("image/png")
          /*ResponseCache(Duration = 86400)*/]
-        public async Task<IActionResult> GetCoverAsync(long id, [FromQuery]bool scaled)
+        public async Task<IActionResult> GetCoverAsync(long id, [FromQuery] int? size)
         {
             var cover = await _coverService.GetAsync(id);
             if (cover == null)
@@ -62,18 +62,18 @@ namespace Covers.Controllers
                 return new BadRequestObjectResult("Cover not found");
             }
 
-            if (scaled)
+            if (size.HasValue)
             {
-                return File(ScaleCover(cover.CoverImage), "image/png");
+                return File(ScaleCover(cover.CoverImage, size.Value), "image/png");
             }
 
             return File(cover.CoverImage, "image/png");
         }
 
-        private static byte[] ScaleCover(byte[] coverImage)
+        private static byte[] ScaleCover(byte[] coverImage, int size = 500)
         {
             using var image = new MagickImage(coverImage);
-            image.Scale(new MagickGeometry { IgnoreAspectRatio = true, Width = 500, Height = 500 });
+            image.Scale(new MagickGeometry { IgnoreAspectRatio = true, Width = size, Height = size });
             return image.ToByteArray(MagickFormat.Png);
         }
     }
