@@ -43,6 +43,7 @@ namespace Covers
             services.AddTransient<IAlbumService, AlbumService>();
             services.AddTransient<IArtistService, ArtistService>();
             services.AddTransient<ITrackService, TrackService>();
+            services.AddTransient<ICoverDownloadService, CoverDownloadService>();
             services.AddHostedService<AlbumScanner>();
             services.AddSwaggerDocument();
         }
