@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { LazyImage } from "react-lazy-images";
 
 const imgWithClick = { cursor: 'pointer' };
 
@@ -24,11 +25,20 @@ const OverviewCover = ({ index, onClick, photo: cover, margin, direction, top, l
                 <h5>{cover.albumName}</h5>
                 <p>{cover.artistName}</p>
           </div>
-          <img
-          // className="tile-image"
-          key={key}
-          style={onClick ? { ...imgStyle, ...imgWithClick } : imgStyle}
-          {...cover}
+          <LazyImage
+            placeholder={({ imageProps, ref }) => (
+              <img ref={ref} 
+              style={onClick ? { ...imgStyle, ...imgWithClick } : imgStyle}
+              {...cover} 
+              src={cover.placeholder} />
+            )}
+            actual={({ imageProps }) => (
+              <img
+                key={key}
+                style={onClick ? { ...imgStyle, ...imgWithClick } : imgStyle}
+                {...cover}
+              />
+            )}
           />
       </div>
     </div>

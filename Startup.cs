@@ -1,5 +1,6 @@
 using Covers.BackgroundServices;
 using Covers.Contracts.Interfaces;
+using Covers.Hubs;
 using Covers.Persistency;
 using Covers.Services;
 using Microsoft.AspNetCore.Builder;
@@ -37,10 +38,12 @@ namespace Covers
 
             services.AddDbContext<CoversContext>(options =>
                          options.UseLazyLoadingProxies().UseSqlite(Configuration.GetConnectionString("CoversContext")));
+            services.AddSignalR();
             services.AddTransient<ICoverService, CoverService>();
             services.AddTransient<IAlbumService, AlbumService>();
             services.AddTransient<IArtistService, ArtistService>();
             services.AddTransient<ITrackService, TrackService>();
+            services.AddTransient<ICoverDownloadService, CoverDownloadService>();
             services.AddHostedService<AlbumScanner>();
             services.AddSwaggerDocument();
         }
@@ -72,6 +75,7 @@ namespace Covers
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapHub<CoversHub>("/CoversHub");
             });
 
             app.UseSpa(spa =>

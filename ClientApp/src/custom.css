@@ -33,6 +33,18 @@ code {
   background-size: contain;
 }
 
+.initialStartPage {
+	height: 100%;
+	position: relative;
+  }
+
+  .center {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+  }
+
 .playerThumbCover {
 	background-repeat: no-repeat;
 	background-position: center;

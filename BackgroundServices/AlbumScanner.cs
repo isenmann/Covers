@@ -1,13 +1,14 @@
 ﻿using Covers.Contracts.Interfaces;
+using Covers.Hubs;
 using Covers.Persistency.Entities;
 using ImageMagick;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,7 +21,6 @@ namespace Covers.BackgroundServices
         private ILogger<AlbumScanner> _logger;
         private readonly IServiceProvider _services;
         private DirectoryInfo _musicDirectory;
-        private string _aadExecutable;
 
         public AlbumScanner(ILogger<AlbumScanner> logger, IServiceProvider services, IConfiguration configuration)
         {
@@ -33,7 +33,6 @@ namespace Covers.BackgroundServices
             _services = services ?? throw new ArgumentNullException(nameof(services));
             var path = configuration.GetValue<string>("MusicDirectory");
             _musicDirectory = new DirectoryInfo(path);
-            _aadExecutable = configuration.GetValue<string>("aadExecutable");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -45,10 +44,16 @@ namespace Covers.BackgroundServices
                 var albumService = scope.ServiceProvider.GetRequiredService<IAlbumService>();
                 var artistService = scope.ServiceProvider.GetRequiredService<IArtistService>();
                 var trackService = scope.ServiceProvider.GetRequiredService<ITrackService>();
+                var coverDownloaderService = scope.ServiceProvider.GetRequiredService<ICoverDownloadService>();
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<CoversHub>>();
                 var existingAlbums = await albumService.GetAsync();
 
                 existingAlbums.Where(a => !Directory.Exists(a.Path)).ToList().ForEach(async album => await albumService.DeleteAsync(album));
-                existingAlbums.RemoveAll(a => !Directory.Exists(a.Path));
+                var count = existingAlbums.RemoveAll(a => !Directory.Exists(a.Path));
+                if (count > 0)
+                {
+                    await hubContext.Clients.All.SendAsync("AlbumUpdates");
+                }
 
                 var exisitingArtists = await artistService.GetAsync();
                 var exisitingTracks = await trackService.GetAsync();
@@ -58,11 +63,12 @@ namespace Covers.BackgroundServices
 
                 foreach (var file in Directory.EnumerateFiles(_musicDirectory.FullName, "*.mp3", SearchOption.AllDirectories))
                 {
+                    await hubContext.Clients.All.SendAsync("Processing", $"Processing file: {file}", cancellationToken: cancellationToken);
                     using var taglibFile = TagLib.File.Create(file);
                     var existingAlbum = existingAlbums.FirstOrDefault(a => a.Name == taglibFile.Tag.Album);
                     var existingArtist = exisitingArtists.FirstOrDefault(a => a.Name == string.Join(",", taglibFile.Tag.Performers));
                     var existingTrack = exisitingTracks.FirstOrDefault(a => a.Name == taglibFile.Tag.Title && a.Number == (int)taglibFile.Tag.Track);
-                    
+
                     if (existingAlbum == null)
                     {
                         existingAlbum = albumsToAdd.FirstOrDefault(a => a.Name == taglibFile.Tag.Album);
@@ -182,87 +188,49 @@ namespace Covers.BackgroundServices
                 {
                     foreach (var album in albumsToAdd.Where(a => a.Covers == null || a.Covers.Count == 0))
                     {
+                        await hubContext.Clients.All.SendAsync("Processing", $"Fetching album cover: {album.Name}");
                         var artistUnique = album.Tracks.Select(t => t.ArtistId).Distinct().Count() == 1;
                         var artist = artistUnique ? album.Tracks.First().Artist.Name : " ";
 
-                        if (await FetchCover(album.Name, artist))
+                        var covers = await coverDownloaderService.DownloadCover(album.Name, artist);
+
+                        if (covers == null)
                         {
-                            album.Covers = new List<Cover>();
+                            continue;
+                        }
 
-                            if (File.Exists("Front.jpg"))
+                        album.Covers = new List<Cover>();
+
+                        if (covers.Item1 != null)
+                        {
+                            var cover = new Cover
                             {
-                                using var frontCover = new MagickImage(File.ReadAllBytes("Front.jpg"));
-                                if (frontCover.Width > 800)
-                                {
-                                    frontCover.Scale(new MagickGeometry { IgnoreAspectRatio = false, Width = 800 });
-                                }
+                                AlbumId = album.AlbumId,
+                                Type = CoverType.Front,
+                                CoverImage = covers.Item1
+                            };
+                            album.Covers.Add(cover);
+                        }
 
-                                var cover = new Cover
-                                {
-                                    AlbumId = album.AlbumId,
-                                    Type = CoverType.Front,
-                                    CoverImage = frontCover.ToByteArray(MagickFormat.Png)
-                                };
-                                album.Covers.Add(cover);
-                            }
-
-                            if (File.Exists("Back.jpg"))
+                        if (covers.Item2 != null)
+                        {
+                            var cover = new Cover
                             {
-                                using var backCover = new MagickImage(File.ReadAllBytes("Back.jpg"));
-                                if(backCover.Width > 800) 
-                                {
-                                    backCover.Scale(new MagickGeometry { IgnoreAspectRatio = false, Width = 800 }); 
-                                }
-                                
-                                var cover = new Cover
-                                {
-                                    AlbumId = album.AlbumId,
-                                    Type = CoverType.Back,
-                                    CoverImage = backCover.ToByteArray(MagickFormat.Png)
-                                };
-                                album.Covers.Add(cover);
-                            }
-                        };
+                                AlbumId = album.AlbumId,
+                                Type = CoverType.Back,
+                                CoverImage = covers.Item2
+                            };
+                            album.Covers.Add(cover);
+                        }
                     }
 
+                    await hubContext.Clients.All.SendAsync("Processing", $"Done...", cancellationToken: cancellationToken);
                     await albumService.AddAsync(albumsToAdd);
+                    await hubContext.Clients.All.SendAsync("AlbumUpdates", cancellationToken: cancellationToken);
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
             }
-        }
-
-        protected async Task<bool> FetchCover(string albumName, string artist)
-        {
-            if (string.IsNullOrWhiteSpace(albumName) || string.IsNullOrWhiteSpace(artist))
-            {
-                return false;
-            }
-
-            if (!File.Exists(_aadExecutable))
-            {
-                return false;
-            }
-
-            if (File.Exists("Front.jpg"))
-            {
-                File.Delete("Front.jpg");
-            }
-
-            if (File.Exists("Back.jpg"))
-            {
-                File.Delete("Back.jpg");
-            }
-
-            var process = new Process();
-            process.StartInfo.FileName = _aadExecutable;
-            process.StartInfo.Arguments = $"/ar \"{artist}\" /al \"{albumName}\" /path \"%type%.jpg\" /coverType front,back /s \"Qobuz (fr-fr),Amazon (.com),iTunes\"";
-            process.Start();
-
-            await process.WaitForExitAsync();
-            var errorCode = process.ExitCode;
-
-            return errorCode == 0;
         }
     }
 }
