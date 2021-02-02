@@ -6,7 +6,7 @@ import OverviewCover from './OverviewCover';
 import AudioPlayer, {RHAP_UI} from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import CoversService from '../services/CoversHubService'
-import ReactTooltip from "react-tooltip";
+import ReactTooltip from 'react-tooltip';
 
 Modal.setAppElement("#root");
 
@@ -239,8 +239,6 @@ export class Home extends Component {
         </div>
       )
     );
-        
-      );
 
     return (
       <div>
