@@ -151,24 +151,19 @@ export class Home extends Component {
       let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
       tooltip = (
       <div className="container-fluid h-100">
-        <div className="row h-100">
-        <div className="col-5">
-          <div className="tooltipThumbCover" 
-              style={{backgroundImage: `url('${this.state.playerCover}')`}}>
+        <div className="col-12">
+            <div className="tooltipThumbCover">
+                <img src={this.state.playerCover} width="200px" />
             </div>
-        </div>
-        <div className="col-2"></div>
-        <div className="col-5">
-          <div className="row h-33">
-            <p>{this.state.albumToPlay.artist}</p>
-          </div>
-          <div className="row h-33">
-            <p>{this.state.albumToPlay.name}</p>
-          </div>
-          <div className="row h-33">
-            <p>{this.state.albumToPlay.tracks[trackArrayIndex].name}</p>
-          </div>
-        </div>
+            <div>
+              <text>{this.state.albumToPlay.artist}</text>
+            </div>
+            <div>
+              <text>{this.state.albumToPlay.name}</text>
+            </div>
+            <div>
+              <text>{this.state.albumToPlay.tracks[trackArrayIndex].name}</text>
+            </div>
         </div>
       </div>
       );
