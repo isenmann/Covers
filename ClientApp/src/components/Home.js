@@ -84,18 +84,28 @@ export class Home extends Component {
     this.setState({ albums: covers, loading: false });
   }
 
-  toggleCoverModal(albumId, frontCoverId, backCoverId) {
+  toggleCoverModal(albumId, frontCoverId, backCoverId, fromPlayer) {
     if(this.state.isCoverModalOpen){
       this.hideModal();
     }else{
-      this.setState({ 
-        isCoverModalOpen: true,
-        albumIdForModal: albumId,
-        frontCoverIdForModal: frontCoverId,
-        backCoverIdForModal: backCoverId});
-      }
-  }
+      if(fromPlayer){
+        let albumForThumbnailPlayer = this.state.albums.find(album => album.albumId === this.state.albumToPlay.albumId);
 
+        this.setState({ 
+          isCoverModalOpen: true,
+          albumIdForModal: albumForThumbnailPlayer.albumId,
+          frontCoverIdForModal: albumForThumbnailPlayer.frontCoverId,
+          backCoverIdForModal: albumForThumbnailPlayer.backCoverId});
+        }else{
+          this.setState({ 
+            isCoverModalOpen: true,
+            albumIdForModal: albumId,
+            frontCoverIdForModal: frontCoverId,
+            backCoverIdForModal: backCoverId});
+        }
+    }
+  }
+  
   hideModal = () => {
     this.setState({ 
       isCoverModalOpen: false
@@ -137,15 +147,14 @@ export class Home extends Component {
 
   render () {
     let thumbCover = 
-        <a data-tip data-for="registerTip">
-          <div className="playerThumbCover" 
-            style={{backgroundImage: `url('${this.state.playerCover}')`}} 
-            onClick={() => this.toggleCoverModal(this.state.albumIdForModal, this.state.frontCoverIdForModal, this.state.backCoverIdForModal)}>
-      
-          </div>
-        </a>;
+    <a data-tip data-for="registerTip">
+      <div className="playerThumbCover" 
+        style={{backgroundImage: `url('${this.state.playerCover}')`}} 
+        onClick={() => this.toggleCoverModal(this.state.albumIdForModal, this.state.frontCoverIdForModal, this.state.backCoverIdForModal, true)}>
+  
+      </div>
+    </a>;
 
-    
     let tooltip= "";
     if(this.state.albumToPlay){
       let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
@@ -156,13 +165,13 @@ export class Home extends Component {
                 <img src={this.state.playerCover} width="200px" />
             </div>
             <div>
-              <text>{this.state.albumToPlay.artist}</text>
+              {this.state.albumToPlay.artist}
             </div>
             <div>
-              <text>{this.state.albumToPlay.name}</text>
+              {this.state.albumToPlay.name}
             </div>
             <div>
-              <text>{this.state.albumToPlay.tracks[trackArrayIndex].name}</text>
+              {this.state.albumToPlay.tracks[trackArrayIndex].name}
             </div>
         </div>
       </div>
