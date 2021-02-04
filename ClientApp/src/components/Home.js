@@ -146,14 +146,17 @@ export class Home extends Component {
   }
 
   render () {
-    let thumbCover = 
-    <a data-tip data-for="registerTip">
-      <div className="playerThumbCover" 
-        style={{backgroundImage: `url('${this.state.playerCover}')`}} 
-        onClick={() => this.toggleCoverModal(this.state.albumIdForModal, this.state.frontCoverIdForModal, this.state.backCoverIdForModal, true)}>
-  
-      </div>
-    </a>;
+    let thumbCover;
+    if(this.state.albumToPlay){
+      thumbCover = <a data-tip data-for="registerTip">
+        <div className="playerThumbCover" 
+          style={{backgroundImage: `url('${this.state.playerCover}')`}} 
+          onClick={() => this.toggleCoverModal(this.state.albumIdForModal, this.state.frontCoverIdForModal, this.state.backCoverIdForModal, true)}>
+        </div>
+      </a>;
+    }else{
+      thumbCover = <div className="playerThumbCover" style={{cursor: 'default'}} />
+    }
 
     let tooltip= "";
     if(this.state.albumToPlay){
@@ -217,6 +220,7 @@ export class Home extends Component {
               showSkipControls={true}/>
           </div>
         </div>
+        {this.state.albumToPlay ?
         <ReactTooltip id="registerTip" place="top" effect="solid"
             overridePosition={(
                 { left, top },
@@ -226,6 +230,7 @@ export class Home extends Component {
             }}>
             {tooltip}
         </ReactTooltip>
+        : ( <div/> )}
       </div>
       : (
         <div class="initialStartPage">
