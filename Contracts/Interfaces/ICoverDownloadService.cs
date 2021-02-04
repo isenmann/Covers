@@ -5,6 +5,6 @@ namespace Covers.Contracts.Interfaces
 {
     public interface ICoverDownloadService
     {
-        Task<Tuple<byte[], byte[]>> DownloadCover(string albumName, string artist);
+        Task<Tuple<byte[], byte[]>> DownloadCoverAsync(string albumName, string artist);
     }
 }

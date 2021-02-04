@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Covers.Contracts;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Covers.Persistency.Entities
 {
@@ -10,11 +11,5 @@ namespace Covers.Persistency.Entities
         public long AlbumId { get; set; }
         [ForeignKey("AlbumId")]
         public virtual Album Album { get; set; }
-    }
-
-    public enum CoverType
-    {
-        Front,
-        Back
     }
 }

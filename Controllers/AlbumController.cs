@@ -1,4 +1,5 @@
-﻿using Covers.Contracts.Interfaces;
+﻿using Covers.Contracts;
+using Covers.Contracts.Interfaces;
 using Covers.Models.DTOs;
 using Covers.Models.Requests;
 using Covers.Models.Responses;

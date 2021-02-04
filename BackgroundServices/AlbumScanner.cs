@@ -1,4 +1,5 @@
-﻿using Covers.Contracts.Interfaces;
+﻿using Covers.Contracts;
+using Covers.Contracts.Interfaces;
 using Covers.Hubs;
 using Covers.Persistency.Entities;
 using ImageMagick;
@@ -48,6 +49,7 @@ namespace Covers.BackgroundServices
                 var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<CoversHub>>();
                 var existingAlbums = await albumService.GetAsync();
 
+                // Delete all albums from the database if they are no longer exist on disk
                 existingAlbums.Where(a => !Directory.Exists(a.Path)).ToList().ForEach(async album => await albumService.DeleteAsync(album));
                 var count = existingAlbums.RemoveAll(a => !Directory.Exists(a.Path));
                 if (count > 0)
@@ -61,10 +63,13 @@ namespace Covers.BackgroundServices
                 var newArtists = new List<Artist>();
                 var newTracks = new List<Track>();
 
+                // Scanning all mp3 files in the music directory
                 foreach (var file in Directory.EnumerateFiles(_musicDirectory.FullName, "*.mp3", SearchOption.AllDirectories))
                 {
                     await hubContext.Clients.All.SendAsync("Processing", $"Processing file: {file}", cancellationToken: cancellationToken);
                     using var taglibFile = TagLib.File.Create(file);
+                    
+                    // because of scanning all mp3 files, look if another track already created the album, artist or track
                     var existingAlbum = existingAlbums.FirstOrDefault(a => a.Name == taglibFile.Tag.Album);
                     var existingArtist = exisitingArtists.FirstOrDefault(a => a.Name == string.Join(",", taglibFile.Tag.Performers));
                     var existingTrack = exisitingTracks.FirstOrDefault(a => a.Name == taglibFile.Tag.Title && a.Number == (int)taglibFile.Tag.Track);
@@ -111,6 +116,7 @@ namespace Covers.BackgroundServices
                         var numberOfTrack = (int)taglibFile.Tag.Track;
                         if (taglibFile.Tag.DiscCount > 1)
                         {
+                            // multi disc albums will have 101 as track number for first track on first CD and so on
                             numberOfTrack = ((int)taglibFile.Tag.Disc * 100) + numberOfTrack;
                         }
 
@@ -192,7 +198,7 @@ namespace Covers.BackgroundServices
                         var artistUnique = album.Tracks.Select(t => t.ArtistId).Distinct().Count() == 1;
                         var artist = artistUnique ? album.Tracks.First().Artist.Name : " ";
 
-                        var covers = await coverDownloaderService.DownloadCover(album.Name, artist);
+                        var covers = await coverDownloaderService.DownloadCoverAsync(album.Name, artist);
 
                         if (covers == null)
                         {

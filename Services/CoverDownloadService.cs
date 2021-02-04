@@ -25,7 +25,7 @@ namespace Covers.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _coverDownloaderConfiguration = configuration.GetSection(CoverDownloadConfiguration.CoverDownloader).Get<CoverDownloadConfiguration>();
         }
-        public async Task<Tuple<byte[], byte[]>> DownloadCover(string albumName, string artist)
+        public async Task<Tuple<byte[], byte[]>> DownloadCoverAsync(string albumName, string artist)
         {
             if (string.IsNullOrWhiteSpace(albumName) || string.IsNullOrWhiteSpace(artist))
             {

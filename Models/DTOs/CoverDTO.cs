@@ -1,4 +1,4 @@
-﻿using Covers.Persistency.Entities;
+﻿using Covers.Contracts;
 
 namespace Covers.Models.DTOs
 {

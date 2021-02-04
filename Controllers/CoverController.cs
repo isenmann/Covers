@@ -1,6 +1,5 @@
 ﻿using Covers.Contracts.Interfaces;
 using Covers.Models.DTOs;
-using Covers.Models.Requests;
 using Covers.Models.Responses;
 using ImageMagick;
 using Microsoft.AspNetCore.Http;
