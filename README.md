@@ -11,22 +11,53 @@ Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI
 * no user limitations, every user has its own session
 * Album cover art as main navigation
 * especially for album lovers, no shuffle over the whole music library, just the album
-* automatically album cover art import from different sources (using the [Album Art Downloader](https://sourceforge.net/projects/album-art/)) or importing them from the ID3 tags of your files
+* automatically album cover art import from different sources (using the [Album Art Downloader](https://sourceforge.net/projects/album-art/) or [Smart Automatic Cover Art Downloader](https://github.com/desbma/sacad)) or importing them from the ID3 tags of your files
 * the local music library won't be altered in any way
 
 ## Installation
 
 * unzip to a folder of your choice
 * adjust the appsettings.json file to your needs, especially:
-  * "MusicDirectory": "C:\\Users\\ise\\Music",
-  * "aadExecutable": "C:\\Users\\ise\\Downloads\\AlbumArtDownloaderXUI-1.05\\aad.exe"
-    - if you don't want to use the Album Art Downloader (which you have to download separately) then leave this option empty, but then no cover will be fetched from the internet and only covers from the ID3 tags are imported if they exists
-* make sure that you have adjusted and set those two options in the appsettings file before you start Covers
+```
+"MusicDirectory": "<your full path to your local mp3 files>",
+"CoverDownloader": {
+  // AAD = Album Art Downloader (https://sourceforge.net/projects/album-art/)
+  // SACAD = Smart Automatic Cover Art Downloader (https://github.com/desbma/sacad)
+  "Type": "<your preferred cover downloader from above>",
+  "Executable": "<your full path to the executable>"
+}
+```
+Example:
+```
+"MusicDirectory": "C:\\Music",
+"CoverDownloader": {
+  // AAD = Album Art Downloader (https://sourceforge.net/projects/album-art/)
+  // SACAD = Smart Automatic Cover Art Downloader (https://github.com/desbma/sacad)
+  "Type": "AAD",
+  "Executable": "C:\\AlbumArtDownloaderXUI-1.05\\aad.exe"
+}
+```
+* make sure that you have adjusted at least those two options in the appsettings file before you start Covers
+* furthermore you can configure the listening port for Covers. If you want to change it, just change port 5000 with your preferred one:
+```
+"Kestrel": {
+    "Endpoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:5000"
+      }
+    }
+  }
+  ```
 * start covers.exe
 * point your browser to the address shown in the command line
 
 ## Usage
-tbd
+### Listen to music
+Using Covers and listen to music is very easy. Just click on a album cover art and the tracks of this album will be shown in a modal dialog. Click on a track and it will play. Click another track and this track will be played. Down below in the player you can scrap through the track with the slider or jump to next/previous track with the controls. Also you canjump -/+10 seconds with the forward and backward controls. Clicking the small cover thumbnail will open the album modal dialog again, clicking it again will close it.
+The playback plays all title from top to bottom and will stop if it reaches the end of the album.
+
+### Change album cover art
+It can happen that the automatic album cover downloader downloads a wrong cover art, but you can change this afterwards. To do this just click on the overview page on an album and then click in the modal dialog the album cover image. Choose another album cover image from your disk and press 'Open'. The album cover will be replaced with the new one and automatically displayed.
 
 ## Roadmap
 
