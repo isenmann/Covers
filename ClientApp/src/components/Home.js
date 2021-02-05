@@ -197,6 +197,7 @@ export class Home extends Component {
           onRequestClose={this.hideModal}
           contentLabel="My dialog"
           overlayClassName="coverModalOverlay"
+          className="coverModal"
           closeTimeoutMS={500}>
             <CoverModal albumId={this.state.albumIdForModal} 
             frontCoverId={this.state.frontCoverIdForModal} 
