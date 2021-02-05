@@ -165,18 +165,11 @@ export class CoverModal extends Component {
    
     return (
       <div className="container-fluid h-100">
-        <div className="row h-5">
-            <h5>{this.state.albumData.artist} - {this.state.albumData.name}</h5> 
-            {/* edit button to open the editor modal
-            <svg onClick={() => { this.setState({ openEditor : true}); }} className="open-editor-icon" viewBox="0 0 24 24">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-            </svg> */}
-            <svg onClick={this.props.hideModal} className="modal-close-icon" viewBox="0 0 24 24">
-              <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
-            </svg>
-        </div>
+        <svg onClick={this.props.hideModal} className="modal-close-icon" viewBox="0 0 24 24">
+            <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
+        </svg>
 
-        <div className="row h-95 flexwrapOff">
+        <div className="row h-100 flexwrapOff">
           <input className="inputFile" style={{overflow: "hidden"}} type="file" name="frontCover" id="frontCover" onChange={this.onChangeFrontCoverHandler}/>
           <div className="col-6 coverImageModalDialog" 
                style={{backgroundImage: `url('${frontCover}')`}}>
@@ -226,7 +219,15 @@ export class CoverModal extends Component {
             )}
             </Measure>
           :
-          <div className="col-6 tracklist">
+          <div className="col-6 tracklist" style={{paddingTop: '15px'}}>
+            <div className="row" style={{paddingLeft: '15px'}}>
+              <h5>{this.state.albumData.artist} - {this.state.albumData.name}</h5> 
+              {/* edit button to open the editor modal
+              <svg onClick={() => { this.setState({ openEditor : true}); }} className="open-editor-icon" viewBox="0 0 24 24">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+              </svg> */}
+              
+            </div>
             {/* ...otherwise show the track table */}
             {contents}
           </div>
