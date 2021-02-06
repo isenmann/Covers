@@ -6,6 +6,7 @@ import Measure from 'react-measure';
 import { Stage, Layer } from 'react-konva';
 import Modal from 'react-modal';
 import { EditorModal } from './EditorModal';
+import { ColorExtractor } from 'react-color-extractor'
 
 export class CoverModal extends Component {
   static displayName = CoverModal.name;
@@ -17,6 +18,7 @@ export class CoverModal extends Component {
       frontCoverId: props.frontCoverId, 
       backCoverId: props.backCoverId,
       albumData: [],
+      backgroundColors: [],
       trackIdToPlay: props.trackIdToPlay,
       loading: true,
       selectedFrontCover: null,
@@ -121,39 +123,12 @@ export class CoverModal extends Component {
       openEditor: false});
   };
 
-  render() {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : (
-        <table className='table table-striped table-hover table-borderless' aria-labelledby="tabelLabel">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Track</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.albumData.tracks.map(track =>
-              {
-                if(track.trackId === this.state.trackIdToPlay){
-                return <tr className="tablerow" style={{background: 'gold'}} 
-                key={track.trackId}
-                 onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, this.state.albumData)}}>
-                  <td>{track.number}</td>
-                  <td>{track.name}</td>
-                </tr>
-                }else{
-                  return <tr className="tablerow" key={track.trackId} onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, this.state.albumData)}}>
-                  <td>{track.number}</td>
-                  <td>{track.name}</td>
-                </tr>
-                }
-              }
-            )}
-          </tbody>
-        </table>
-      );
+  getColors = (colors) => {
+    this.setState({backgroundColors: colors});
+    console.log(colors);
+  };
 
+  render() {
     let frontCover = "placeholder.png";
     let backCover = "placeholder.png"
     if(this.state.frontCoverId > 0){
@@ -162,10 +137,46 @@ export class CoverModal extends Component {
     if(this.state.backCoverId > 0){
         backCover = `Cover/${this.state.backCoverId}`;
     }
-   
+
+    let contents = this.state.loading
+      ? <p><em>Loading...</em></p>
+      : (
+        <table className='table table-striped table-hover table-borderless' aria-labelledby="tabelLabel">
+          <thead>
+            <tr>
+              <th style={{color: this.state.backgroundColors[5]}}>#</th>
+              <th style={{color: this.state.backgroundColors[5]}}>Track</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.state.albumData.tracks.map(track =>
+              {
+                if(track.trackId === this.state.trackIdToPlay){
+                return <tr className="tablerow" style={{background: this.state.backgroundColors[4]}} 
+                key={track.trackId}
+                 onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, this.state.albumData)}}>
+                  <td style={{color: this.state.backgroundColors[5]}}>{track.number}</td>
+                  <td style={{color: this.state.backgroundColors[5]}}>{track.name}</td>
+                </tr>
+                }else{
+                  return <tr className="tablerow" key={track.trackId} onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, this.state.albumData)}}>
+                  <td style={{color: this.state.backgroundColors[5]}}>{track.number}</td>
+                  <td style={{color: this.state.backgroundColors[5]}}>{track.name}</td>
+                </tr>
+                }
+              }
+            )}
+          </tbody>
+        </table>
+      );
+
     return (
-      <div className="container-fluid h-100">
-        <svg onClick={this.props.hideModal} className="modal-close-icon" viewBox="0 0 24 24">
+      <div className="container-fluid h-100" style={{background: this.state.backgroundColors[0]}}>
+        <ColorExtractor
+          src={frontCover}
+          getColors={this.getColors}
+        />
+        <svg onClick={this.props.hideModal} className="modal-close-icon" style={{fill: this.state.backgroundColors[5], stroke:this.state.backgroundColors[1]}} viewBox="0 0 24 24">
             <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
         </svg>
 
@@ -221,7 +232,7 @@ export class CoverModal extends Component {
           :
           <div className="col-6 tracklist" style={{paddingTop: '15px'}}>
             <div className="row" style={{paddingLeft: '15px'}}>
-              <h5>{this.state.albumData.artist} - {this.state.albumData.name}</h5> 
+              <h5 style={{color: this.state.backgroundColors[5]}}>{this.state.albumData.artist} - {this.state.albumData.name}</h5> 
               {/* edit button to open the editor modal
               <svg onClick={() => { this.setState({ openEditor : true}); }} className="open-editor-icon" viewBox="0 0 24 24">
                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>

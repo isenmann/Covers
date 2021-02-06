@@ -40,6 +40,8 @@ namespace Covers.BackgroundServices
         {
             while (!cancellationToken.IsCancellationRequested)
             {
+                await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+
                 using var scope = _services.CreateScope();
 
                 var albumService = scope.ServiceProvider.GetRequiredService<IAlbumService>();
@@ -234,8 +236,6 @@ namespace Covers.BackgroundServices
                     await albumService.AddAsync(albumsToAdd);
                     await hubContext.Clients.All.SendAsync("AlbumUpdates", cancellationToken: cancellationToken);
                 }
-
-                await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
             }
         }
     }
