@@ -18,7 +18,8 @@ Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI
 
 ## Installation
 
-* unzip to a folder of your choice
+* install one of the mentioned album cover downloader
+* unzip the release package of Covers to a folder of your choice
 * adjust the appsettings.json file to your needs, especially:
 ```
 "MusicDirectory": "<your full path to your local mp3 files>",
