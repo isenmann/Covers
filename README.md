@@ -5,6 +5,8 @@ Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI
 
 <img src="https://lh3.googleusercontent.com/pw/ACtC-3esfg585AU3HQkJWyIFUtjbh-x81DaCvlypm0UZcLEzvL0gFaO1M-d5WKDFfRLGlfVJG-ERutPAbmD2rCwshAy4P3p1tbZFfTmeJ462Q2hb1aWKr4i8eXWsMTOWPAr4a6vgs-IP7iHF6BXCcYKEm1Ie6Q=w1119-h815-no" />
 
+<img src="https://lh3.googleusercontent.com/pw/ACtC-3cPOzMtaB8KCSA3rssPSKBt5ubW73ww5Tp72rdRJofRRqY236VoHZMauMNAMYFxWjt4KmsDmtmooXhexWCCauQYapJlJKAC8K-ijz26mDXfbeFZ87uB4FuC_T43Fp0XREy0WnXtwfMwLQaaDxAINtSDaQ=w1254-h746-no?authuser=0" />
+
 ## Features
 * network music player for your local music library
 * play your music on any device with a browser
