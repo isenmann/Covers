@@ -51,7 +51,7 @@ Example:
     }
   }
   ```
-* start covers.exe
+* start Covers by double-click on the exe (Linux: make sure that Covers has the execution flag and then type ./Covers in a terminal of your choice)
 * point your browser to the address shown in the command line
 
 ## Usage
