@@ -7,6 +7,7 @@ import AudioPlayer, {RHAP_UI} from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import CoversService from '../services/CoversHubService'
 import ReactTooltip from 'react-tooltip';
+import SpotifyPlayer from 'react-spotify-web-playback';
 
 Modal.setAppElement("#root");
 
@@ -21,6 +22,7 @@ export class Home extends Component {
       albumIdForModal: -1,
       coverIdForModal: -1,
       trackIdToPlay: -1,
+      spotifyUriToPlay: "",
       albumToPlay: null,
       playerCover: "",
       processedText: "",
@@ -117,8 +119,8 @@ export class Home extends Component {
     });
   };
 
-  play = (trackId, album) => {
-    this.setState({trackIdToPlay: trackId, albumToPlay: album, playerCover: `Cover/${this.state.frontCoverIdForModal}`});
+  play = (trackId, spotifyUri, album) => {
+    this.setState({trackIdToPlay: trackId, spotifyUriToPlay: spotifyUri, albumToPlay: album, playerCover: `Cover/${this.state.frontCoverIdForModal}`});
   }
 
   frontCoverUpdated = (albumId, coverId) => {
@@ -216,14 +218,21 @@ export class Home extends Component {
 
         <div>
          <div style={this.footerStyle}>
-          <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
+         <SpotifyPlayer
+                token={this.state.spotifyToken}
+                uris={[`${this.state.spotifyUriToPlay}`]}
+                autoPlay={true} 
+                name="Covers"
+              />;
+          {/* <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
               customAdditionalControls={[]}
               src={`Track/${this.state.trackIdToPlay}`}
               onEnded={e => this.nextTrack()}
               onClickNext={e => this.nextTrack()}
               onClickPrevious={e => this.previousTrack()}
               customVolumeControls={[thumbCover, RHAP_UI.VOLUME]} 
-              showSkipControls={true}/>
+              showSkipControls={true}/> */}
+              
           </div>
         </div>
         {this.state.albumToPlay ?

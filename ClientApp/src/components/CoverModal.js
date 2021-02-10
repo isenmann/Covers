@@ -155,12 +155,12 @@ export class CoverModal extends Component {
                 if(track.trackId === this.state.trackIdToPlay){
                 return <tr className="tablerow" style={{background: this.state.backgroundColors[4]}} 
                 key={track.trackId}
-                 onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, this.state.albumData)}}>
+                 onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, track.spotifyUri, this.state.albumData)}}>
                   <td style={{color: this.state.backgroundColors[5]}}>{track.number}</td>
                   <td style={{color: this.state.backgroundColors[5]}}>{track.name}</td>
                 </tr>
                 }else{
-                  return <tr className="tablerow" key={track.trackId} onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, this.state.albumData)}}>
+                  return <tr className="tablerow" key={track.trackId} onClick={() => { this.setState({trackIdToPlay: track.trackId}); this.props.onPlay(track.trackId, track.spotifyUri, this.state.albumData)}}>
                   <td style={{color: this.state.backgroundColors[5]}}>{track.number}</td>
                   <td style={{color: this.state.backgroundColors[5]}}>{track.name}</td>
                 </tr>
