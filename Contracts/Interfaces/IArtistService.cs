@@ -6,6 +6,6 @@ namespace Covers.Contracts.Interfaces
 {
     public interface IArtistService
     {
-        Task<IEnumerable<Artist>> GetAsync();
+        Task<List<Artist>> GetAsync();
     }
 }
