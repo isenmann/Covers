@@ -54,7 +54,8 @@ namespace Covers.Controllers
                     TrackId = t.TrackId,
                     Artist = t.Artist.Name,
                     Name = t.Name,
-                    Number = t.Number
+                    Number = t.Number,
+                    SpotifyUri = t.SpotifyUri
                 }).OrderBy(t => t.Number).ToList()
             };
             return new OkObjectResult(response);

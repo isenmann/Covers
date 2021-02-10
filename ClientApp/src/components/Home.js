@@ -23,15 +23,20 @@ export class Home extends Component {
       trackIdToPlay: -1,
       albumToPlay: null,
       playerCover: "",
-      processedText: "" };
+      processedText: "",
+      spotifyToken: "" };
 
-      CoversService.registerAlbumUpdates(() => {
+    CoversService.registerAlbumUpdates(() => {
         this.fetchAlbumData();
     });
 
     CoversService.registerProcessing((text) => {
       this.setState({processedText: text});
-  });
+    });
+
+    CoversService.registerSpotifyTokenRefresh((token) => {
+      this.setState({spotifyToken: token});
+    });
   }
 
   footerStyle = {

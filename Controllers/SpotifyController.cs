@@ -46,7 +46,16 @@ namespace Covers.Controllers
               _spotifyConfiguration.ClientID,
               LoginRequest.ResponseType.Code)
             {
-                Scope = new[] { Scopes.UserLibraryRead }
+                Scope = new[] 
+                    { 
+                        Scopes.UserLibraryRead, 
+                        Scopes.UserLibraryModify,
+                        Scopes.UserReadEmail, 
+                        Scopes.UserReadPrivate,
+                        Scopes.UserReadPlaybackState,
+                        Scopes.UserModifyPlaybackState,
+                        Scopes.Streaming
+                    }
             };
             var uri = loginRequest.ToUri();
             return Redirect(uri.AbsoluteUri);

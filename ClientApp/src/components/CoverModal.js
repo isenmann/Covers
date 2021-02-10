@@ -60,7 +60,8 @@ export class CoverModal extends Component {
         trackId: track.trackId,
         number: track.number,
         name: track.name,
-        artist: track.artist
+        artist: track.artist,
+        spotifyUri: track.spotifyUri
       })
     });
 

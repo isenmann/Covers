@@ -23,6 +23,12 @@ class CoversHubService {
             processing(text);
         });
     }
+
+    registerSpotifyTokenRefresh(tokenRefresh) {
+        this.connection.on('SpotifyTokenRefresh', (token) => {
+            tokenRefresh(token);
+        });
+    }
 }
 
 const CoversService = new CoversHubService();

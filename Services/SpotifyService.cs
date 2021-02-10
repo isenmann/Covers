@@ -1,5 +1,7 @@
 ﻿using Covers.Contracts;
 using Covers.Contracts.Interfaces;
+using Covers.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SpotifyAPI.Web;
@@ -12,14 +14,17 @@ namespace Covers.Services
     public class SpotifyService : ISpotifyService
     {
         private readonly ILogger<SpotifyService> _logger;
+        private readonly IHubContext<CoversHub> _hubContext;
         private readonly SpotifyConfiguration _spotifyConfiguration;
 
         private SpotifyClient _spotifyClient;
+        private string _accessToken;
 
-        public SpotifyService(ILogger<SpotifyService> logger, IConfiguration configuration)
+        public SpotifyService(ILogger<SpotifyService> logger, IConfiguration configuration, IHubContext<CoversHub> hubContext)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            if(configuration == null)
+            _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+            if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
             _spotifyConfiguration = configuration.GetSection(SpotifyConfiguration.Spotify).Get<SpotifyConfiguration>();
@@ -30,6 +35,10 @@ namespace Covers.Services
             var response = await new OAuthClient().RequestToken(
                new AuthorizationCodeTokenRequest(_spotifyConfiguration.ClientID, _spotifyConfiguration.ClientSecret, code, new Uri("https://localhost:5001/Spotify/Callback"))
             );
+
+            _accessToken = response.AccessToken;
+            await _hubContext.Clients.All.SendAsync("SpotifyTokenRefresh", _accessToken);
+
             var config = SpotifyClientConfig
               .CreateDefault()
               .WithAuthenticator(new AuthorizationCodeAuthenticator(_spotifyConfiguration.ClientID, _spotifyConfiguration.ClientSecret, response));
@@ -58,7 +67,7 @@ namespace Covers.Services
             {
                 spotifyAlbumsPaged = await _spotifyClient.Library.GetAlbums(new LibraryAlbumsRequest { Limit = limit, Offset = spotifyAlbums.Count });
                 spotifyAlbums.AddRange(spotifyAlbumsPaged.Items);
-                moreAlbumsAvailable -= spotifyAlbums.Count;
+                moreAlbumsAvailable -= limit;
             }
 
             return spotifyAlbums;
