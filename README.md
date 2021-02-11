@@ -65,7 +65,7 @@ It can happen that the automatic album cover downloader downloads a wrong cover 
 
 ## Roadmap
 
-* Spotify integration
+* Spotify integration (currently working on)
 * Back cover song chooser (make the back cover interactable to choose the tracks instead of a simple table)
 * UI improvements for smaller displays (especially the album modal with track listing)
 
