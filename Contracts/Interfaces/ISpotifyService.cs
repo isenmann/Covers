@@ -9,5 +9,7 @@ namespace Covers.Contracts.Interfaces
     {
         Task AddCallbackCodeAsync(string code);
         Task<List<SavedAlbum>> GetAlbumsFromUserLibrary();
+        Task Play(string spotifyUri, string deviceId);
+        Task Pause(string deviceId);
     }
 }

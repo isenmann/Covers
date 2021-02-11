@@ -1,5 +1,6 @@
 ﻿using Covers.Contracts;
 using Covers.Contracts.Interfaces;
+using Covers.Models.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -57,6 +58,7 @@ namespace Covers.Controllers
                         Scopes.Streaming
                     }
             };
+
             var uri = loginRequest.ToUri();
             return Redirect(uri.AbsoluteUri);
         }
@@ -67,6 +69,24 @@ namespace Covers.Controllers
         public async Task<IActionResult> CallbackAsync(string code)
         {
             await _spotifyService.AddCallbackCodeAsync(code);
+            return Ok();
+        }
+
+        [HttpPost("Play"),
+         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Play(PlaySpotifyTrackRequest request)
+        {
+            await _spotifyService.Play(request.SpotifyTrackUri, request.DeviceId);
+            return Ok();
+        }
+
+        [HttpPost("Pause"),
+         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Pause(string deviceId)
+        {
+            await _spotifyService.Pause(deviceId);
             return Ok();
         }
     }

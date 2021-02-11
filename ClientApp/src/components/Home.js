@@ -8,6 +8,8 @@ import 'react-h5-audio-player/lib/styles.css';
 import CoversService from '../services/CoversHubService'
 import ReactTooltip from 'react-tooltip';
 import SpotifyPlayer from 'react-spotify-web-playback';
+import axios from 'axios';
+
 
 Modal.setAppElement("#root");
 
@@ -26,7 +28,12 @@ export class Home extends Component {
       albumToPlay: null,
       playerCover: "",
       processedText: "",
-      spotifyToken: "" };
+      spotifyToken: "",
+      spotifyDeviceId: "" };
+
+    this.handleLoadSuccess = this.handleLoadSuccess.bind(this);
+    this.handleLoadFailure = this.handleLoadSuccess.bind(this);
+    this.cb = this.cb.bind(this);
 
     CoversService.registerAlbumUpdates(() => {
         this.fetchAlbumData();
@@ -38,6 +45,7 @@ export class Home extends Component {
 
     CoversService.registerSpotifyTokenRefresh((token) => {
       this.setState({spotifyToken: token});
+      this.handleLoadSuccess();
     });
   }
 
@@ -56,7 +64,88 @@ export class Home extends Component {
   };
 
   componentDidMount() {
+    if (!window.onSpotifyWebPlaybackSDKReady) {
+      window.onSpotifyWebPlaybackSDKReady = this.handleLoadSuccess;
+    } else {
+      this.handleLoadSuccess();
+    }
+    this.loadSpotifyPlayer();
+
     this.fetchAlbumData();
+  }
+
+  loadSpotifyPlayer() {   
+      const scriptTag = document.getElementById('spotify-player');
+  
+      if (!scriptTag) {
+        const script = document.createElement('script');
+  
+        script.id = 'spotify-player';
+        script.type = 'text/javascript';
+        script.async = false;
+        script.defer = true;
+        script.src = 'https://sdk.scdn.co/spotify-player.js';
+        // script.onload = () => resolve();
+        // script.onerror = () => reject(new Error(`loadScript: ${error.message}`));
+  
+        document.head.appendChild(script);
+      }
+  }
+
+  handleLoadSuccess() {
+    this.setState({ scriptLoaded: true });
+    console.log("Script loaded");
+    const token = this.state.spotifyToken;
+    const player = new window.Spotify.Player({
+      name: 'Covers',
+      getOAuthToken: cb => { cb(token); }
+    });
+    console.log(player);
+
+    // Error handling
+    player.addListener('initialization_error', ({ message }) => { console.error(message); });
+    player.addListener('authentication_error', ({ message }) => { console.error(message); });
+    player.addListener('account_error', ({ message }) => { console.error(message); });
+    player.addListener('playback_error', ({ message }) => { console.error(message); });
+
+    // Playback status updates
+    player.addListener('player_state_changed', state => { console.log(state); });
+
+    // Ready
+    player.addListener('ready', ({ device_id }) => {
+      console.log('Ready with Device ID', device_id);
+      this.setState({spotifyDeviceId: device_id});
+    });
+
+    // Not Ready
+    player.addListener('not_ready', ({ device_id }) => {
+      console.log('Device ID has gone offline', device_id);
+    });
+
+    // Connect to the player!
+    player.connect();
+    player.setVolume(1).then(() => {
+      console.log('Volume updated!');
+    });
+  }
+
+  cb(token) {
+    return(token);
+  }
+
+  handleScriptCreate() {
+    this.setState({ scriptLoaded: false });
+    console.log("Script created");
+  }
+
+  handleScriptError() {
+    this.setState({ scriptError: true });
+    console.log("Script error");
+  }
+
+  handleScriptLoad() {
+    this.setState({ scriptLoaded: true});
+    console.log("Script loaded");
   }
 
   async fetchAlbumData() {
@@ -121,6 +210,14 @@ export class Home extends Component {
 
   play = (trackId, spotifyUri, album) => {
     this.setState({trackIdToPlay: trackId, spotifyUriToPlay: spotifyUri, albumToPlay: album, playerCover: `Cover/${this.state.frontCoverIdForModal}`});
+    if(spotifyUri){
+      axios.post('Spotify/Play', {
+        SpotifyTrackUri: spotifyUri,
+        DeviceId: this.state.spotifyDeviceId
+      });
+     }else{
+      axios.post('Spotify/Pause?deviceId=' + this.state.spotifyDeviceId);
+     }
   }
 
   frontCoverUpdated = (albumId, coverId) => {
@@ -139,16 +236,16 @@ export class Home extends Component {
   nextTrack() {
     let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
     if(this.state.albumToPlay.tracks.length > trackArrayIndex + 1){
-        this.play(this.state.albumToPlay.tracks[trackArrayIndex + 1].trackId, this.state.albumToPlay);
+        this.play(this.state.albumToPlay.tracks[trackArrayIndex + 1].trackId, this.state.albumToPlay.tracks[trackArrayIndex + 1].spotifyUri, this.state.albumToPlay);
     }
   }
 
   previousTrack() {
     let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
     if(trackArrayIndex - 1 >= 0){
-        this.play(this.state.albumToPlay.tracks[trackArrayIndex - 1].trackId, this.state.albumToPlay);
+        this.play(this.state.albumToPlay.tracks[trackArrayIndex - 1].trackId, this.state.albumToPlay.tracks[trackArrayIndex - 1].spotifyUri, this.state.albumToPlay);
     }else{
-      this.play(this.state.albumToPlay.tracks[trackArrayIndex].trackId, this.state.albumToPlay);
+      this.play(this.state.albumToPlay.tracks[trackArrayIndex].trackId, this.state.albumToPlay.tracks[trackArrayIndex - 1].spotifyUri, this.state.albumToPlay);
     }
   }
 
@@ -218,20 +315,20 @@ export class Home extends Component {
 
         <div>
          <div style={this.footerStyle}>
-         <SpotifyPlayer
+         {/* <SpotifyPlayer
                 token={this.state.spotifyToken}
                 uris={[`${this.state.spotifyUriToPlay}`]}
                 autoPlay={true} 
                 name="Covers"
-              />;
-          {/* <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
+              /> */}
+          <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
               customAdditionalControls={[]}
               src={`Track/${this.state.trackIdToPlay}`}
               onEnded={e => this.nextTrack()}
               onClickNext={e => this.nextTrack()}
               onClickPrevious={e => this.previousTrack()}
               customVolumeControls={[thumbCover, RHAP_UI.VOLUME]} 
-              showSkipControls={true}/> */}
+              showSkipControls={true}/>
               
           </div>
         </div>
@@ -266,7 +363,6 @@ export class Home extends Component {
 
     return (
       <div>
-        
         {content}
       </div>
     );

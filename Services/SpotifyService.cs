@@ -72,5 +72,25 @@ namespace Covers.Services
 
             return spotifyAlbums;
         }
+
+        public async Task Play(string spotifyUri, string deviceId)
+        {
+            if (_spotifyClient == null)
+            {
+                return;
+            }
+
+            await _spotifyClient.Player.ResumePlayback(new PlayerResumePlaybackRequest { DeviceId = deviceId, Uris = new List<string> { spotifyUri } });
+        }
+
+        public async Task Pause(string deviceId)
+        {
+            if (_spotifyClient == null)
+            {
+                return;
+            }
+
+            await _spotifyClient.Player.PausePlayback(new PlayerPausePlaybackRequest { DeviceId = deviceId });
+        }
     }
 }
