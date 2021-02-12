@@ -13,12 +13,12 @@ namespace Covers.Services
 {
     public class SpotifyService : ISpotifyService
     {
+        public string AccessToken { get; private set; }
+
         private readonly ILogger<SpotifyService> _logger;
         private readonly IHubContext<CoversHub> _hubContext;
         private readonly SpotifyConfiguration _spotifyConfiguration;
-
         private SpotifyClient _spotifyClient;
-        private string _accessToken;
 
         public SpotifyService(ILogger<SpotifyService> logger, IConfiguration configuration, IHubContext<CoversHub> hubContext)
         {
@@ -36,8 +36,8 @@ namespace Covers.Services
                new AuthorizationCodeTokenRequest(_spotifyConfiguration.ClientID, _spotifyConfiguration.ClientSecret, code, new Uri("https://localhost:5001/Spotify/Callback"))
             );
 
-            _accessToken = response.AccessToken;
-            await _hubContext.Clients.All.SendAsync("SpotifyTokenRefresh", _accessToken);
+            AccessToken = response.AccessToken;
+            await _hubContext.Clients.All.SendAsync("SpotifyTokenRefresh", AccessToken);
 
             var config = SpotifyClientConfig
               .CreateDefault()

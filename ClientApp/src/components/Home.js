@@ -63,7 +63,19 @@ export class Home extends Component {
     zIndex: 100
   };
 
+  checkSpotifyLogin(){
+    axios.get('Spotify/Login').then((response) => {
+      if(response.data.startsWith("https://accounts.spotify.com")){
+        window.location.href = response.data;
+      }else{
+          this.setState({ spotifyToken: response.data});
+      }
+    });
+  }
+
   componentDidMount() {
+    this.checkSpotifyLogin();
+
     if (!window.onSpotifyWebPlaybackSDKReady) {
       window.onSpotifyWebPlaybackSDKReady = this.handleLoadSuccess;
     } else {

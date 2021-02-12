@@ -1,6 +1,7 @@
 ﻿using Covers.Contracts;
 using Covers.Contracts.Interfaces;
 using Covers.Models.Requests;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -42,6 +43,11 @@ namespace Covers.Controllers
                 return Ok();
             }
 
+            if (!string.IsNullOrWhiteSpace(_spotifyService.AccessToken))
+            {
+                return new OkObjectResult(_spotifyService.AccessToken);
+            }
+
             var loginRequest = new LoginRequest(
               new Uri("https://localhost:5001/Spotify/Callback"),
               _spotifyConfiguration.ClientID,
@@ -60,7 +66,7 @@ namespace Covers.Controllers
             };
 
             var uri = loginRequest.ToUri();
-            return Redirect(uri.AbsoluteUri);
+            return new OkObjectResult(uri.AbsoluteUri);
         }
 
         [HttpGet("Callback"),
@@ -69,7 +75,7 @@ namespace Covers.Controllers
         public async Task<IActionResult> CallbackAsync(string code)
         {
             await _spotifyService.AddCallbackCodeAsync(code);
-            return Ok();
+            return Redirect(new Uri("https://localhost:5001").AbsoluteUri);
         }
 
         [HttpPost("Play"),

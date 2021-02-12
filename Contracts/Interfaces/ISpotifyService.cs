@@ -7,6 +7,7 @@ namespace Covers.Contracts.Interfaces
 {
     public interface ISpotifyService
     {
+        public string AccessToken { get; }
         Task AddCallbackCodeAsync(string code);
         Task<List<SavedAlbum>> GetAlbumsFromUserLibrary();
         Task Play(string spotifyUri, string deviceId);
