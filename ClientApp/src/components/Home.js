@@ -36,6 +36,7 @@ export class Home extends Component {
     this.handleLoadSuccess = this.handleLoadSuccess.bind(this);
     this.handleLoadFailure = this.handleLoadSuccess.bind(this);
     this.cb = this.cb.bind(this);
+    this.timeoutHandle = '';
 
     CoversService.registerAlbumUpdates(() => {
         this.fetchAlbumData();
@@ -278,7 +279,12 @@ export class Home extends Component {
 
   volumeChanged = (event) => {
     this.setState({volume: event.target.volume});
-    axios.post('Spotify/Volume?deviceId=' + this.state.spotifyDeviceId + '&volume=' + this.state.volume);
+    clearTimeout(this.timeoutHandle)
+    this.timeoutHandle = setTimeout(this.changeVolume, 500);
+  }
+
+  changeVolume = () => {
+    axios.post('Spotify/Volume?deviceId=' + this.state.spotifyDeviceId + '&volume=' + this.state.volume)
   }
 
   frontCoverUpdated = (albumId, coverId) => {
@@ -403,7 +409,7 @@ export class Home extends Component {
                 name="Covers"
               /> */
           }
-          
+
           {this.state.spotifyUriToPlay ?
               <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
                   customAdditionalControls={[]}
