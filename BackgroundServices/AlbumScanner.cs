@@ -68,7 +68,7 @@ namespace Covers.BackgroundServices
                 var localAlbums = await SyncLocalAlbums(hubContext, existingAlbums, existingTracks, existingArtists);
                 albumsToAdd.AddRange(localAlbums);
 
-                var spotifyAlbums = await SyncSpotifyAlbums(spotify, hubContext, existingAlbums, existingTracks, existingArtists);
+                var spotifyAlbums = await SyncSpotifyAlbums(spotify, albumService, hubContext, existingAlbums, existingTracks, existingArtists);
                 albumsToAdd.AddRange(spotifyAlbums);
 
                 foreach (var album in albumsToAdd)
@@ -257,9 +257,21 @@ namespace Covers.BackgroundServices
         }
 
 
-        private async Task<List<Album>> SyncSpotifyAlbums(ISpotifyService spotifyService, IHubContext<CoversHub> hubContext, List<Album> existingAlbums, List<Track> existingTracks, List<Artist> existingArtists)
+        private async Task<List<Album>> SyncSpotifyAlbums(ISpotifyService spotifyService, IAlbumService albumService, IHubContext<CoversHub> hubContext, List<Album> existingAlbums, List<Track> existingTracks, List<Artist> existingArtists)
         {
             var spotifyAlbums = await spotifyService.GetAlbumsFromUserLibrary();
+            if (spotifyAlbums == null)
+            {
+                return new List<Album>();
+            }
+
+            existingAlbums.Where(a => !string.IsNullOrWhiteSpace(a.SpotifyId) && !spotifyAlbums.Any(sa => sa.Album.Id == a.SpotifyId)).ToList().ForEach(async album => await albumService.DeleteAsync(album));
+            var count = existingAlbums.RemoveAll(a => !string.IsNullOrWhiteSpace(a.SpotifyId) && !spotifyAlbums.Any(sa => sa.Album.Id == a.SpotifyId));
+            if (count > 0)
+            {
+                await hubContext.Clients.All.SendAsync("AlbumUpdates");
+            }
+
             var albumsToAdd = new List<Album>();
             var newArtists = new List<Artist>();
             var newTracks = new List<Track>();

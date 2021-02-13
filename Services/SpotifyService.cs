@@ -50,7 +50,7 @@ namespace Covers.Services
         {
             if (_spotifyClient == null)
             {
-                return new List<SavedAlbum>();
+                return null;
             }
 
             var spotifyAlbums = new List<SavedAlbum>();
