@@ -30,7 +30,8 @@ export class Home extends Component {
       processedText: "",
       spotifyToken: "",
       spotifyDeviceId: "",
-      playerPaused: true };
+      playerPaused: true,
+      volume: 1};
 
     this.handleLoadSuccess = this.handleLoadSuccess.bind(this);
     this.handleLoadFailure = this.handleLoadSuccess.bind(this);
@@ -147,7 +148,7 @@ export class Home extends Component {
 
     // Connect to the player!
     player.connect();
-    player.setVolume(1).then(() => {
+    player.setVolume(this.state.volume).then(() => {
       console.log('Volume updated!');
     });
   }
@@ -275,6 +276,11 @@ export class Home extends Component {
     axios.post('Spotify/Step?deviceId=' + this.state.spotifyDeviceId + '&offset=' + offset);
   }
 
+  volumeChanged = (event) => {
+    this.setState({volume: event.target.volume});
+    axios.post('Spotify/Volume?deviceId=' + this.state.spotifyDeviceId + '&volume=' + this.state.volume);
+  }
+
   frontCoverUpdated = (albumId, coverId) => {
     let album = this.state.albums.find(album => album.albumId === albumId);
     album.frontCoverId = coverId;
@@ -395,26 +401,31 @@ export class Home extends Component {
                 uris={[`${this.state.spotifyUriToPlay}`]}
                 autoPlay={true} 
                 name="Covers"
-              /> */}
-              {this.state.spotifyUriToPlay ? 
-                <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
+              /> */
+          }
+          
+          {this.state.spotifyUriToPlay ?
+              <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
                   customAdditionalControls={[]}
                   src={`Track/${this.state.trackIdToPlay}`}
                   onEnded={e => this.nextTrack()}
                   onClickNext={e => this.nextTrack()}
                   onClickPrevious={e => this.previousTrack()}
-                  customVolumeControls={[thumbCover, RHAP_UI.VOLUME]} 
+                  customVolumeControls={[thumbCover, RHAP_UI.VOLUME]}
                   showSkipControls={true}
-                  customControlsSection={[RHAP_UI.ADDITIONAL_CONTROLS, spotifyControls, RHAP_UI.VOLUME_CONTROLS]}/> 
-                :
-                <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
+                  customControlsSection={[RHAP_UI.ADDITIONAL_CONTROLS, spotifyControls, RHAP_UI.VOLUME_CONTROLS]}
+                  onVolumeChange={e => this.volumeChanged(e)} />
+              :
+              <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
                   customAdditionalControls={[]}
                   src={`Track/${this.state.trackIdToPlay}`}
                   onEnded={e => this.nextTrack()}
                   onClickNext={e => this.nextTrack()}
                   onClickPrevious={e => this.previousTrack()}
-                  customVolumeControls={[thumbCover, RHAP_UI.VOLUME]} 
-                  showSkipControls={true}/>}
+                  customVolumeControls={[thumbCover, RHAP_UI.VOLUME]}
+                  showSkipControls={true}
+                  onVolumeChange={e => this.volumeChanged(e)} />
+          }
           </div>
         </div>
         {this.state.albumToPlay ?

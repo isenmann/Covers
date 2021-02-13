@@ -14,5 +14,6 @@ namespace Covers.Contracts.Interfaces
         Task Pause(string deviceId);
         Task Resume(string deviceId);
         Task SeekStepTo(string deviceId, long offset);
+        Task SetVolume(string deviceId, double volume);
     }
 }

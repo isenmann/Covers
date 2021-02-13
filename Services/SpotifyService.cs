@@ -113,5 +113,16 @@ namespace Covers.Services
             var currentPlayback = await _spotifyClient.Player.GetCurrentPlayback();
             await _spotifyClient.Player.SeekTo(new PlayerSeekToRequest(currentPlayback.ProgressMs + offset) { DeviceId = deviceId });
         }
+
+        public async Task SetVolume(string deviceId, double volume)
+        {
+            if (_spotifyClient == null)
+            {
+                return;
+            }
+
+            int vol = Convert.ToInt32(100 * volume);
+            await _spotifyClient.Player.SetVolume(new PlayerVolumeRequest(vol) { DeviceId = deviceId });
+        }
     }
 }

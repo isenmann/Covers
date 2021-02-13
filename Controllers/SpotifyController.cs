@@ -112,5 +112,14 @@ namespace Covers.Controllers
             await _spotifyService.SeekStepTo(deviceId, offset);
             return Ok();
         }
+
+        [HttpPost("Volume"),
+         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Volume(string deviceId, double volume)
+        {
+            await _spotifyService.SetVolume(deviceId, volume);
+            return Ok();
+        }
     }
 }
