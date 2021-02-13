@@ -29,7 +29,8 @@ export class Home extends Component {
       playerCover: "",
       processedText: "",
       spotifyToken: "",
-      spotifyDeviceId: "" };
+      spotifyDeviceId: "",
+      playerPaused: true };
 
     this.handleLoadSuccess = this.handleLoadSuccess.bind(this);
     this.handleLoadFailure = this.handleLoadSuccess.bind(this);
@@ -221,28 +222,25 @@ export class Home extends Component {
   };
 
   play = (trackId, spotifyUri, album) => {
-    this.setState({trackIdToPlay: trackId, spotifyUriToPlay: spotifyUri, albumToPlay: album, playerCover: `Cover/${this.state.frontCoverIdForModal}`});
+    this.setState({playerPaused: false, trackIdToPlay: trackId, spotifyUriToPlay: spotifyUri, albumToPlay: album, playerCover: `Cover/${this.state.frontCoverIdForModal}`});
     if(spotifyUri){
       axios.post('Spotify/Play', {
         SpotifyTrackUri: spotifyUri,
         DeviceId: this.state.spotifyDeviceId
       });
      }else{
-      axios.post('Spotify/Pause?deviceId=' + this.state.spotifyDeviceId);
+      this.pauseSpotify();
      }
   }
 
-  frontCoverUpdated = (albumId, coverId) => {
-    let album = this.state.albums.find(album => album.albumId === albumId);
-    album.frontCoverId = coverId;
-    album.src = `/Cover/${album.frontCoverId}?size=500`;
-    this.setState({albums: this.state.albums});
+  pauseSpotify = () => {
+    this.setState({playerPaused: true});
+    axios.post('Spotify/Pause?deviceId=' + this.state.spotifyDeviceId);
   }
 
-  backCoverUpdated = (albumId, coverId) => {
-    let album = this.state.albums.find(album => album.albumId === albumId);
-    album.backCoverId = coverId;
-    this.setState({albums: this.state.albums});
+  resumeSpotify = () => {
+    this.setState({playerPaused: false});
+    axios.post('Spotify/Resume?deviceId=' + this.state.spotifyDeviceId);
   }
 
   nextTrack() {
@@ -259,6 +257,23 @@ export class Home extends Component {
     }else{
       this.play(this.state.albumToPlay.tracks[trackArrayIndex].trackId, this.state.albumToPlay.tracks[trackArrayIndex - 1].spotifyUri, this.state.albumToPlay);
     }
+  }
+
+  seekOffset = (offset) => {
+    axios.post('Spotify/Step?deviceId=' + this.state.spotifyDeviceId + '&offset=' + offset);
+  }
+
+  frontCoverUpdated = (albumId, coverId) => {
+    let album = this.state.albums.find(album => album.albumId === albumId);
+    album.frontCoverId = coverId;
+    album.src = `/Cover/${album.frontCoverId}?size=500`;
+    this.setState({albums: this.state.albums});
+  }
+
+  backCoverUpdated = (albumId, coverId) => {
+    let album = this.state.albums.find(album => album.albumId === albumId);
+    album.backCoverId = coverId;
+    this.setState({albums: this.state.albums});
   }
 
   render () {
@@ -297,6 +312,42 @@ export class Home extends Component {
       );
     }
 
+    let spotifyControls = (<div class="rhap_main-controls">
+    <button aria-label="Previous" class="rhap_button-clear rhap_main-controls-button rhap_skip-button" type="button" onClick={() => this.previousTrack()}>
+        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
+            <path d="M6 18V6h2v12H6m3.5-6L18 6v12l-8.5-6z" fill="currentColor"></path>
+        </svg>
+    </button>
+    <button aria-label="Rewind" class="rhap_button-clear rhap_main-controls-button rhap_rewind-button" type="button" onClick={() => this.seekOffset(-10000)}>
+        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
+            <path d="M11.5 12l8.5 6V6m-9 12V6l-8.5 6l8.5 6z" fill="currentColor"></path>
+        </svg>
+    </button>
+    {this.state.playerPaused ?
+      <button aria-label="Play" class="rhap_button-clear rhap_main-controls-button rhap_play-pause-button" type="button" onClick={() => this.resumeSpotify()}>
+        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
+            <path d="M10 16.5v-9l6 4.5M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2z" fill="currentColor"></path>
+        </svg>
+      </button>
+    :
+      <button aria-label="Pause" class="rhap_button-clear rhap_main-controls-button rhap_play-pause-button" type="button" onClick={() => this.pauseSpotify()}>
+        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
+          <path d="M15 16h-2V8h2m-4 8H9V8h2m1-6A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2z" fill="currentColor"></path>
+        </svg>
+      </button>
+    }
+    <button aria-label="Forward" class="rhap_button-clear rhap_main-controls-button rhap_forward-button" type="button" onClick={() => this.seekOffset(10000)}>
+        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
+            <path d="M13 6v12l8.5-6M4 18l8.5-6L4 6v12z" fill="currentColor"></path>
+        </svg>
+    </button>
+    <button aria-label="Skip" class="rhap_button-clear rhap_main-controls-button rhap_skip-button" type="button" onClick={() => this.nextTrack()}>
+        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
+            <path d="M16 18h2V6h-2M6 18l8.5-6L6 6v12z" fill="currentColor"></path>
+        </svg>
+    </button>
+    </div>);
+
     let content = this.state.loading
     ? <p><em>Loading information from server, please wait...</em></p>
     : (
@@ -333,15 +384,25 @@ export class Home extends Component {
                 autoPlay={true} 
                 name="Covers"
               /> */}
-          <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
-              customAdditionalControls={[]}
-              src={`Track/${this.state.trackIdToPlay}`}
-              onEnded={e => this.nextTrack()}
-              onClickNext={e => this.nextTrack()}
-              onClickPrevious={e => this.previousTrack()}
-              customVolumeControls={[thumbCover, RHAP_UI.VOLUME]} 
-              showSkipControls={true}/>
-              
+              {this.state.spotifyUriToPlay ? 
+                <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
+                  customAdditionalControls={[]}
+                  src={`Track/${this.state.trackIdToPlay}`}
+                  onEnded={e => this.nextTrack()}
+                  onClickNext={e => this.nextTrack()}
+                  onClickPrevious={e => this.previousTrack()}
+                  customVolumeControls={[thumbCover, RHAP_UI.VOLUME]} 
+                  showSkipControls={true}
+                  customControlsSection={[RHAP_UI.ADDITIONAL_CONTROLS, spotifyControls, RHAP_UI.VOLUME_CONTROLS]}/> 
+                :
+                <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
+                  customAdditionalControls={[]}
+                  src={`Track/${this.state.trackIdToPlay}`}
+                  onEnded={e => this.nextTrack()}
+                  onClickNext={e => this.nextTrack()}
+                  onClickPrevious={e => this.previousTrack()}
+                  customVolumeControls={[thumbCover, RHAP_UI.VOLUME]} 
+                  showSkipControls={true}/>}
           </div>
         </div>
         {this.state.albumToPlay ?

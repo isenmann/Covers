@@ -83,6 +83,16 @@ namespace Covers.Services
             await _spotifyClient.Player.ResumePlayback(new PlayerResumePlaybackRequest { DeviceId = deviceId, Uris = new List<string> { spotifyUri } });
         }
 
+        public async Task Resume(string deviceId)
+        {
+            if (_spotifyClient == null)
+            {
+                return;
+            }
+
+            await _spotifyClient.Player.ResumePlayback(new PlayerResumePlaybackRequest { DeviceId = deviceId });
+        }
+
         public async Task Pause(string deviceId)
         {
             if (_spotifyClient == null)
@@ -91,6 +101,17 @@ namespace Covers.Services
             }
 
             await _spotifyClient.Player.PausePlayback(new PlayerPausePlaybackRequest { DeviceId = deviceId });
+        }
+
+        public async Task SeekStepTo(string deviceId, long offset)
+        {
+            if (_spotifyClient == null)
+            {
+                return;
+            }
+
+            var currentPlayback = await _spotifyClient.Player.GetCurrentPlayback();
+            await _spotifyClient.Player.SeekTo(new PlayerSeekToRequest(currentPlayback.ProgressMs + offset) { DeviceId = deviceId });
         }
     }
 }

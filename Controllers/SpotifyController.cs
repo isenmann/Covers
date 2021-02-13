@@ -95,5 +95,23 @@ namespace Covers.Controllers
             await _spotifyService.Pause(deviceId);
             return Ok();
         }
+
+        [HttpPost("Resume"),
+        ProducesResponseType(StatusCodes.Status200OK),
+        ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Resume(string deviceId)
+        {
+            await _spotifyService.Resume(deviceId);
+            return Ok();
+        }
+
+        [HttpPost("Step"),
+         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Step(string deviceId, long offset)
+        {
+            await _spotifyService.SeekStepTo(deviceId, offset);
+            return Ok();
+        }
     }
 }

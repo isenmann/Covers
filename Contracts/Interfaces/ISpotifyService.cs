@@ -12,5 +12,7 @@ namespace Covers.Contracts.Interfaces
         Task<List<SavedAlbum>> GetAlbumsFromUserLibrary();
         Task Play(string spotifyUri, string deviceId);
         Task Pause(string deviceId);
+        Task Resume(string deviceId);
+        Task SeekStepTo(string deviceId, long offset);
     }
 }
