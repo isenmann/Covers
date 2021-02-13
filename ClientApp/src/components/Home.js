@@ -122,7 +122,17 @@ export class Home extends Component {
     player.addListener('playback_error', ({ message }) => { console.error(message); });
 
     // Playback status updates
-    player.addListener('player_state_changed', state => { console.log(state); });
+    player.addListener('player_state_changed', state => { 
+      if(!this.state.playerPaused){
+          // end of track reached, take the next track from album
+          if (state.position === 0 &&
+              this.state.spotifyUriToPlay === state.track_window.current_track.uri &&
+              state.paused) {
+          this.nextTrack();
+        }
+      }
+      console.log(state); 
+    });
 
     // Ready
     player.addListener('ready', ({ device_id }) => {
@@ -245,9 +255,11 @@ export class Home extends Component {
 
   nextTrack() {
     let trackArrayIndex = this.state.albumToPlay.tracks.findIndex(t => t.trackId === this.state.trackIdToPlay);
-    if(this.state.albumToPlay.tracks.length > trackArrayIndex + 1){
-        this.play(this.state.albumToPlay.tracks[trackArrayIndex + 1].trackId, this.state.albumToPlay.tracks[trackArrayIndex + 1].spotifyUri, this.state.albumToPlay);
-    }
+      if (this.state.albumToPlay.tracks.length > trackArrayIndex + 1) {
+          this.play(this.state.albumToPlay.tracks[trackArrayIndex + 1].trackId, this.state.albumToPlay.tracks[trackArrayIndex + 1].spotifyUri, this.state.albumToPlay);
+      } else {
+          this.setState({playerPaused: true});
+      }
   }
 
   previousTrack() {
