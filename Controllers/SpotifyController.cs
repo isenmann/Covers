@@ -1,5 +1,6 @@
 ﻿using Covers.Contracts;
 using Covers.Contracts.Interfaces;
+using Covers.Models.DTOs;
 using Covers.Models.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -120,6 +121,27 @@ namespace Covers.Controllers
         {
             await _spotifyService.SetVolume(deviceId, volume);
             return Ok();
+        }
+
+        [HttpGet("PlaybackState"),
+         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> PlaybackState(string deviceId)
+        {
+            var context = await _spotifyService.RequestPlaybackState(deviceId);
+            if (context == null || context.Device.Id != deviceId)
+            {
+                return new BadRequestObjectResult("No playback state found");
+            }
+
+            var response = new PlaybackStateDTO
+            {
+                CurrentProgressInPercent = (double)context.ProgressMs * 100 / (context.Item as FullTrack).DurationMs,
+                CurrentTime = TimeSpan.FromMilliseconds(context.ProgressMs).ToString(@"mm\:ss"),
+                TotalTime = TimeSpan.FromMilliseconds((context.Item as FullTrack).DurationMs).ToString(@"mm\:ss")
+            };
+
+            return new OkObjectResult(response);
         }
     }
 }

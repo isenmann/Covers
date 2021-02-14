@@ -15,5 +15,6 @@ namespace Covers.Contracts.Interfaces
         Task Resume(string deviceId);
         Task SeekStepTo(string deviceId, long offset);
         Task SetVolume(string deviceId, double volume);
+        Task<CurrentlyPlayingContext> RequestPlaybackState(string deviceId);
     }
 }

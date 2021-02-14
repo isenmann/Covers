@@ -124,5 +124,15 @@ namespace Covers.Services
             int vol = Convert.ToInt32(100 * volume);
             await _spotifyClient.Player.SetVolume(new PlayerVolumeRequest(vol) { DeviceId = deviceId });
         }
+
+        public async Task<CurrentlyPlayingContext> RequestPlaybackState(string deviceId)
+        {
+            if (_spotifyClient == null)
+            {
+                return null;
+            }
+
+            return await _spotifyClient.Player.GetCurrentPlayback();
+        }
     }
 }

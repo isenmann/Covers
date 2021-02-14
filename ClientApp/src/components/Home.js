@@ -31,12 +31,17 @@ export class Home extends Component {
       spotifyToken: "",
       spotifyDeviceId: "",
       playerPaused: true,
-      volume: 1};
+      volume: 1,
+      spotifyTrackTotalTime: "--:--",
+      spotifyTrackCurrentTime: "00:00",
+      spotifyTrackCurrentProgressInPercent: 0
+    }
 
     this.handleLoadSuccess = this.handleLoadSuccess.bind(this);
     this.handleLoadFailure = this.handleLoadSuccess.bind(this);
     this.cb = this.cb.bind(this);
     this.timeoutHandle = '';
+    this.progressBarTimeoutHandle = '';
 
     CoversService.registerAlbumUpdates(() => {
         this.fetchAlbumData();
@@ -116,7 +121,7 @@ export class Home extends Component {
       getOAuthToken: cb => { cb(token); }
     });
     console.log(player);
-
+    
     // Error handling
     player.addListener('initialization_error', ({ message }) => { console.error(message); });
     player.addListener('authentication_error', ({ message }) => { console.error(message); });
@@ -240,6 +245,16 @@ export class Home extends Component {
         SpotifyTrackUri: spotifyUri,
         DeviceId: this.state.spotifyDeviceId
       });
+
+      const that = this;
+      function fetchCurrentSpotifyTrackInfo() {
+        axios.get('Spotify/PlaybackState?deviceId=' + that.state.spotifyDeviceId).then(function (response) {
+          that.setState({spotifyTrackTotalTime: response.data.totalTime, spotifyTrackCurrentTime: response.data.currentTime, spotifyTrackCurrentProgressInPercent: response.data.currentProgressInPercent});
+          console.log(response);
+        });
+      }
+      clearInterval(this.progressBarTimeoutHandle);
+      this.progressBarTimeoutHandle = setInterval(fetchCurrentSpotifyTrackInfo, 1000);
      }else{
       this.pauseSpotify();
      }
@@ -248,11 +263,23 @@ export class Home extends Component {
   pauseSpotify = () => {
     this.setState({playerPaused: true});
     axios.post('Spotify/Pause?deviceId=' + this.state.spotifyDeviceId);
+    clearInterval(this.progressBarTimeoutHandle);
   }
 
   resumeSpotify = () => {
     this.setState({playerPaused: false});
     axios.post('Spotify/Resume?deviceId=' + this.state.spotifyDeviceId);
+
+    const that = this;
+    function fetchCurrentSpotifyTrackInfo() {
+      axios.get('Spotify/PlaybackState?deviceId=' + that.state.spotifyDeviceId).then(function (response) {
+        that.setState({spotifyTrackTotalTime: response.data.totalTime, spotifyTrackCurrentTime: response.data.currentTime, spotifyTrackCurrentProgressInPercent: response.data.currentProgressInPercent});
+        console.log(response);
+      });
+    }
+
+    clearInterval(this.progressBarTimeoutHandle);
+    this.progressBarTimeoutHandle = setInterval(fetchCurrentSpotifyTrackInfo, 1000);
   }
 
   nextTrack() {
@@ -285,6 +312,13 @@ export class Home extends Component {
 
   changeVolume = () => {
     axios.post('Spotify/Volume?deviceId=' + this.state.spotifyDeviceId + '&volume=' + this.state.volume)
+  }
+
+  fetchCurrentSpotifyTrackInfo(deviceId) {
+    axios.get('Spotify/PlaybackState?deviceId=' + deviceId).then(function (response) {
+      this.setState({spotifyTrackTotalTime: response.data.TotalTime, spotifyTrackCurrentTime: response.data.CurrentTime, spotifyTrackCurrentProgressInPercent: response.data.CurrentProgressInPercent});
+      console.log(response);
+    });
   }
 
   frontCoverUpdated = (albumId, coverId) => {
@@ -372,6 +406,21 @@ export class Home extends Component {
     </button>
     </div>);
 
+    var percentage = `${this.state.spotifyTrackCurrentProgressInPercent}%`;
+
+    let spotifyProgressBar = (
+    <div class="rhap_progress-section">
+      <div id="rhap_current-time" class="rhap_time rhap_current-time">{this.state.spotifyTrackCurrentTime}</div>
+          <div class="rhap_progress-container" style={{cursor: 'default'}} aria-label="Audio Progress Control" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={this.state.spotifyTrackCurrentProgressInPercent} tabindex="0">
+              <div class="rhap_progress-bar rhap_progress-bar-show-download">
+              <div class="rhap_progress-indicator" style={{left: percentage}}></div>
+              <div class="rhap_progress-filled" style={{width: percentage}}></div>
+              <div class="rhap_download-progress" style={{left: '0%', width: '100%', transitionDuration: '0'}}></div>
+          </div>
+      </div>
+      <div class="rhap_time rhap_total-time">{this.state.spotifyTrackTotalTime}</div>
+    </div>);
+
     let content = this.state.loading
     ? <p><em>Loading information from server, please wait...</em></p>
     : (
@@ -419,6 +468,7 @@ export class Home extends Component {
                   onClickPrevious={e => this.previousTrack()}
                   customVolumeControls={[thumbCover, RHAP_UI.VOLUME]}
                   showSkipControls={true}
+                  customProgressBarSection={[spotifyProgressBar]}
                   customControlsSection={[RHAP_UI.ADDITIONAL_CONTROLS, spotifyControls, RHAP_UI.VOLUME_CONTROLS]}
                   onVolumeChange={e => this.volumeChanged(e)} />
               :
