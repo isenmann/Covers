@@ -369,56 +369,66 @@ export class Home extends Component {
       );
     }
 
-    let spotifyControls = (<div class="rhap_main-controls">
-    <button aria-label="Previous" class="rhap_button-clear rhap_main-controls-button rhap_skip-button" type="button" onClick={() => this.previousTrack()}>
-        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
-            <path d="M6 18V6h2v12H6m3.5-6L18 6v12l-8.5-6z" fill="currentColor"></path>
-        </svg>
-    </button>
-    <button aria-label="Rewind" class="rhap_button-clear rhap_main-controls-button rhap_rewind-button" type="button" onClick={() => this.seekOffset(-10000)}>
-        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
-            <path d="M11.5 12l8.5 6V6m-9 12V6l-8.5 6l8.5 6z" fill="currentColor"></path>
-        </svg>
-    </button>
-    {this.state.playerPaused ?
-      <button aria-label="Play" class="rhap_button-clear rhap_main-controls-button rhap_play-pause-button" type="button" onClick={() => this.resumeSpotify()}>
-        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
-            <path d="M10 16.5v-9l6 4.5M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2z" fill="currentColor"></path>
-        </svg>
-      </button>
-    :
-      <button aria-label="Pause" class="rhap_button-clear rhap_main-controls-button rhap_play-pause-button" type="button" onClick={() => this.pauseSpotify()}>
-        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
-          <path d="M15 16h-2V8h2m-4 8H9V8h2m1-6A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2z" fill="currentColor"></path>
-        </svg>
-      </button>
-    }
-    <button aria-label="Forward" class="rhap_button-clear rhap_main-controls-button rhap_forward-button" type="button" onClick={() => this.seekOffset(10000)}>
-        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
-            <path d="M13 6v12l8.5-6M4 18l8.5-6L4 6v12z" fill="currentColor"></path>
-        </svg>
-    </button>
-    <button aria-label="Skip" class="rhap_button-clear rhap_main-controls-button rhap_skip-button" type="button" onClick={() => this.nextTrack()}>
-        <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
-            <path d="M16 18h2V6h-2M6 18l8.5-6L6 6v12z" fill="currentColor"></path>
-        </svg>
-    </button>
-    </div>);
+    var customProgressBarSection = [RHAP_UI.CURRENT_TIME, RHAP_UI.PROGRESS_BAR, RHAP_UI.DURATION];
+    var customControlsSection = [RHAP_UI.ADDITIONAL_CONTROLS, RHAP_UI.MAIN_CONTROLS, RHAP_UI.VOLUME_CONTROLS];
+    var playTrackSrc = `Track/${this.state.trackIdToPlay}`;
 
-    var percentage = `${this.state.spotifyTrackCurrentProgressInPercent}%`;
+    if(this.state.spotifyUriToPlay){
+      var percentage = `${this.state.spotifyTrackCurrentProgressInPercent}%`;
 
-    let spotifyProgressBar = (
-    <div class="rhap_progress-section">
-      <div id="rhap_current-time" class="rhap_time rhap_current-time">{this.state.spotifyTrackCurrentTime}</div>
-          <div class="rhap_progress-container" style={{cursor: 'default'}} aria-label="Audio Progress Control" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={this.state.spotifyTrackCurrentProgressInPercent} tabindex="0">
-              <div class="rhap_progress-bar rhap_progress-bar-show-download">
-              <div class="rhap_progress-indicator" style={{left: percentage}}></div>
-              <div class="rhap_progress-filled" style={{width: percentage}}></div>
-              <div class="rhap_download-progress" style={{left: '0%', width: '100%', transitionDuration: '0'}}></div>
+      var spotifyProgressBar = (
+        <div className="rhap_progress-section">
+          <div className="rhap_time rhap_current-time">{this.state.spotifyTrackCurrentTime}</div>
+              <div className="rhap_progress-container" style={{cursor: 'default'}} aria-label="Audio Progress Control" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={this.state.spotifyTrackCurrentProgressInPercent} tabIndex="0">
+                  <div className="rhap_progress-bar rhap_progress-bar-show-download">
+                  <div className="rhap_progress-indicator" style={{left: percentage}}></div>
+                  <div className="rhap_progress-filled" style={{width: percentage}}></div>
+                  <div className="rhap_download-progress" style={{left: '0%', width: '100%', transitionDuration: '0'}}></div>
+              </div>
           </div>
-      </div>
-      <div class="rhap_time rhap_total-time">{this.state.spotifyTrackTotalTime}</div>
-    </div>);
+          <div className="rhap_time rhap_total-time">{this.state.spotifyTrackTotalTime}</div>
+        </div>);
+
+        var spotifyControls = (<div className="rhap_main-controls">
+        <button aria-label="Previous" className="rhap_button-clear rhap_main-controls-button rhap_skip-button" type="button" onClick={() => this.previousTrack()}>
+            <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
+                <path d="M6 18V6h2v12H6m3.5-6L18 6v12l-8.5-6z" fill="currentColor"></path>
+            </svg>
+        </button>
+        <button aria-label="Rewind" className="rhap_button-clear rhap_main-controls-button rhap_rewind-button" type="button" onClick={() => this.seekOffset(-10000)}>
+            <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
+                <path d="M11.5 12l8.5 6V6m-9 12V6l-8.5 6l8.5 6z" fill="currentColor"></path>
+            </svg>
+        </button>
+        {this.state.playerPaused ?
+          <button aria-label="Play" className="rhap_button-clear rhap_main-controls-button rhap_play-pause-button" type="button" onClick={() => this.resumeSpotify()}>
+            <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
+                <path d="M10 16.5v-9l6 4.5M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2z" fill="currentColor"></path>
+            </svg>
+          </button>
+        :
+          <button aria-label="Pause" className="rhap_button-clear rhap_main-controls-button rhap_play-pause-button" type="button" onClick={() => this.pauseSpotify()}>
+            <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
+              <path d="M15 16h-2V8h2m-4 8H9V8h2m1-6A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2z" fill="currentColor"></path>
+            </svg>
+          </button>
+        }
+        <button aria-label="Forward" className="rhap_button-clear rhap_main-controls-button rhap_forward-button" type="button" onClick={() => this.seekOffset(10000)}>
+            <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
+                <path d="M13 6v12l8.5-6M4 18l8.5-6L4 6v12z" fill="currentColor"></path>
+            </svg>
+        </button>
+        <button aria-label="Skip" className="rhap_button-clear rhap_main-controls-button rhap_skip-button" type="button" onClick={() => this.nextTrack()}>
+            <svg xmlns="http://www.w3.org/2000/svg" focusable="false" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" >
+                <path d="M16 18h2V6h-2M6 18l8.5-6L6 6v12z" fill="currentColor"></path>
+            </svg>
+        </button>
+        </div>);
+
+      customProgressBarSection = [spotifyProgressBar];
+      customControlsSection = [RHAP_UI.ADDITIONAL_CONTROLS, spotifyControls, RHAP_UI.VOLUME_CONTROLS];
+      playTrackSrc = '';
+    }
 
     let content = this.state.loading
     ? <p><em>Loading information from server, please wait...</em></p>
@@ -447,32 +457,20 @@ export class Home extends Component {
             onBackCoverUpdated={this.backCoverUpdated}
             trackIdToPlay={this.state.trackIdToPlay}/>
         </Modal>
-
+  
         <div>
          <div style={this.footerStyle}>
-          {this.state.spotifyUriToPlay ?
               <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
                   customAdditionalControls={[]}
-                  src={`Track/${this.state.trackIdToPlay}`}
+                  src={playTrackSrc}
                   onEnded={e => this.nextTrack()}
                   onClickNext={e => this.nextTrack()}
                   onClickPrevious={e => this.previousTrack()}
                   customVolumeControls={[thumbCover, RHAP_UI.VOLUME]}
                   showSkipControls={true}
-                  customProgressBarSection={[spotifyProgressBar]}
-                  customControlsSection={[RHAP_UI.ADDITIONAL_CONTROLS, spotifyControls, RHAP_UI.VOLUME_CONTROLS]}
+                  customProgressBarSection={customProgressBarSection}
+                  customControlsSection={customControlsSection}
                   onVolumeChange={e => this.volumeChanged(e)} />
-              :
-              <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
-                  customAdditionalControls={[]}
-                  src={`Track/${this.state.trackIdToPlay}`}
-                  onEnded={e => this.nextTrack()}
-                  onClickNext={e => this.nextTrack()}
-                  onClickPrevious={e => this.previousTrack()}
-                  customVolumeControls={[thumbCover, RHAP_UI.VOLUME]}
-                  showSkipControls={true}
-                  onVolumeChange={e => this.volumeChanged(e)} />
-          }
           </div>
         </div>
         {this.state.albumToPlay ?
