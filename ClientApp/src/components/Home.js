@@ -7,7 +7,6 @@ import AudioPlayer, {RHAP_UI} from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import CoversService from '../services/CoversHubService'
 import ReactTooltip from 'react-tooltip';
-import SpotifyPlayer from 'react-spotify-web-playback';
 import axios from 'axios';
 
 
@@ -451,14 +450,6 @@ export class Home extends Component {
 
         <div>
          <div style={this.footerStyle}>
-         {/* <SpotifyPlayer
-                token={this.state.spotifyToken}
-                uris={[`${this.state.spotifyUriToPlay}`]}
-                autoPlay={true} 
-                name="Covers"
-              /> */
-          }
-
           {this.state.spotifyUriToPlay ?
               <AudioPlayer style={{backgroundColor: "transparent"}} layout="horizontal"
                   customAdditionalControls={[]}
