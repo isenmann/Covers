@@ -33,7 +33,7 @@ namespace Covers.Services
         public async Task AddCallbackCodeAsync(string code)
         {
             var response = await new OAuthClient().RequestToken(
-               new AuthorizationCodeTokenRequest(_spotifyConfiguration.ClientID, _spotifyConfiguration.ClientSecret, code, new Uri("https://localhost:5001/Spotify/Callback"))
+               new AuthorizationCodeTokenRequest(_spotifyConfiguration.ClientID, _spotifyConfiguration.ClientSecret, code, new Uri(_spotifyConfiguration.CallbackUri))
             );
 
             AccessToken = response.AccessToken;

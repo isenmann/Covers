@@ -49,7 +49,7 @@ namespace Covers.Controllers
             }
 
             var loginRequest = new LoginRequest(
-              new Uri("https://localhost:5001/Spotify/Callback"),
+              new Uri(_spotifyConfiguration.CallbackUri),
               _spotifyConfiguration.ClientID,
               LoginRequest.ResponseType.Code)
             {
@@ -75,7 +75,8 @@ namespace Covers.Controllers
         public async Task<IActionResult> CallbackAsync(string code)
         {
             await _spotifyService.AddCallbackCodeAsync(code);
-            return Redirect(new Uri("https://localhost:5001").AbsoluteUri);
+            var uri = new Uri(_spotifyConfiguration.CallbackUri);
+            return Redirect(uri.AbsoluteUri.Replace(uri.AbsolutePath,""));
         }
 
         [HttpPost("Play"),
