@@ -76,7 +76,8 @@ namespace Covers.Controllers
                     FrontCoverId = a.Covers.FirstOrDefault(c => c.Type == CoverType.Front)?.CoverId ?? -1,
                     BackCoverId = a.Covers.FirstOrDefault(c => c.Type == CoverType.Back)?.CoverId ?? -1,
                     AlbumName = a.Name,
-                    ArtistName = a.Artist != null ? a.Artist.Name : "Various Artists"
+                    ArtistName = a.Artist != null ? a.Artist.Name : "Various Artists",
+                    FromSpotify = !string.IsNullOrWhiteSpace(a.SpotifyId)
                 }).ToList(),
                 TotalCount = albums.Count
             };

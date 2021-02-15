@@ -202,7 +202,8 @@ export class Home extends Component {
         backCoverId: element.backCoverId,
         albumId: element.albumId,
         albumName: element.albumName,
-        artistName: element.artistName
+        artistName: element.artistName,
+        fromSpotify: element.fromSpotify
       })
     });
 
