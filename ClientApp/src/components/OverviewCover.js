@@ -25,8 +25,7 @@ const OverviewCover = ({ index, onClick, photo: cover, margin, direction, top, l
                 <h5>{cover.albumName}</h5>
                 <p>{cover.artistName}</p>
                 {cover.fromSpotify ?
-                  <img width="25px" src="Spotify_Icon_RGB_Green.png"></img> 
-                  : <div/>
+                  <img width="25px" src="Spotify_Icon_RGB_Green.png"></img> : ""
                 }
           </div>
           <LazyImage
