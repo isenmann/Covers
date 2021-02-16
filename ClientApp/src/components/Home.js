@@ -52,7 +52,6 @@ export class Home extends Component {
 
     CoversService.registerSpotifyTokenRefresh((token) => {
       this.setState({spotifyToken: token});
-      this.handleLoadSuccess();
     });
   }
 
@@ -114,10 +113,9 @@ export class Home extends Component {
   handleLoadSuccess() {
     this.setState({ scriptLoaded: true });
     console.log("Script loaded");
-    const token = this.state.spotifyToken;
     const player = new window.Spotify.Player({
       name: 'Covers',
-      getOAuthToken: cb => { cb(token); }
+      getOAuthToken: cb => { cb(this.state.spotifyToken); }
     });
     console.log(player);
     

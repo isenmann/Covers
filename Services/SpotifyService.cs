@@ -8,17 +8,20 @@ using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Covers.Services
 {
     public class SpotifyService : ISpotifyService
     {
         public string AccessToken { get; private set; }
+        public string RefreshToken { get; private set; }
 
         private readonly ILogger<SpotifyService> _logger;
         private readonly IHubContext<CoversHub> _hubContext;
         private readonly SpotifyConfiguration _spotifyConfiguration;
         private SpotifyClient _spotifyClient;
+        private Timer _refreshTokenTimer;
 
         public SpotifyService(ILogger<SpotifyService> logger, IConfiguration configuration, IHubContext<CoversHub> hubContext)
         {
@@ -28,6 +31,25 @@ namespace Covers.Services
                 throw new ArgumentNullException(nameof(configuration));
 
             _spotifyConfiguration = configuration.GetSection(SpotifyConfiguration.Spotify).Get<SpotifyConfiguration>();
+            _refreshTokenTimer = new Timer
+            {
+                AutoReset = false
+            };
+            _refreshTokenTimer.Elapsed += RefreshTokenTimerElapsed;
+        }
+
+        private void RefreshTokenTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            var request = new AuthorizationCodeRefreshRequest(_spotifyConfiguration.ClientID, _spotifyConfiguration.ClientSecret, RefreshToken);
+            var response = new OAuthClient().RequestToken(request).GetAwaiter().GetResult();
+
+            AccessToken = response.AccessToken;
+
+            _refreshTokenTimer.Interval = response.ExpiresIn * 1000 / 2;
+            _refreshTokenTimer.Start();
+
+            _hubContext.Clients.All.SendAsync("SpotifyTokenRefresh", AccessToken);
+            _spotifyClient = new SpotifyClient(AccessToken);
         }
 
         public async Task AddCallbackCodeAsync(string code)
@@ -37,13 +59,14 @@ namespace Covers.Services
             );
 
             AccessToken = response.AccessToken;
+            RefreshToken = response.RefreshToken;
+
+            _refreshTokenTimer.Stop();
+            _refreshTokenTimer.Interval = response.ExpiresIn * 1000 / 2;
+            _refreshTokenTimer.Start();
+
             await _hubContext.Clients.All.SendAsync("SpotifyTokenRefresh", AccessToken);
-
-            var config = SpotifyClientConfig
-              .CreateDefault()
-              .WithAuthenticator(new AuthorizationCodeAuthenticator(_spotifyConfiguration.ClientID, _spotifyConfiguration.ClientSecret, response));
-
-            _spotifyClient = new SpotifyClient(config);
+            _spotifyClient = new SpotifyClient(AccessToken);
         }
 
         public async Task<List<SavedAlbum>> GetAlbumsFromUserLibrary()
