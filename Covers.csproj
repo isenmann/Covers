@@ -8,6 +8,11 @@
     <IsPackable>false</IsPackable>
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <Authors>Daniel Isenmann</Authors>
+    <Company />
+    <PackageProjectUrl>https://github.com/isenmann/Covers</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/isenmann/Covers</RepositoryUrl>
+    <Version>0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +29,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="NSwag.AspNetCore" Version="13.9.4" />
+    <PackageReference Include="SpotifyAPI.Web" Version="6.0.0" />
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.0.0" />
     <PackageReference Include="TagLibSharp" Version="2.2.0" />
   </ItemGroup>
 

@@ -44,6 +44,7 @@ namespace Covers
             services.AddTransient<IArtistService, ArtistService>();
             services.AddTransient<ITrackService, TrackService>();
             services.AddTransient<ICoverDownloadService, CoverDownloadService>();
+            services.AddSingleton<ISpotifyService, SpotifyService>();
             services.AddHostedService<AlbumScanner>();
             services.AddSwaggerDocument();
         }

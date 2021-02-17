@@ -54,7 +54,8 @@ namespace Covers.Controllers
                     TrackId = t.TrackId,
                     Artist = t.Artist.Name,
                     Name = t.Name,
-                    Number = t.Number
+                    Number = t.Number,
+                    SpotifyUri = t.SpotifyUri
                 }).OrderBy(t => t.Number).ToList()
             };
             return new OkObjectResult(response);
@@ -75,7 +76,8 @@ namespace Covers.Controllers
                     FrontCoverId = a.Covers.FirstOrDefault(c => c.Type == CoverType.Front)?.CoverId ?? -1,
                     BackCoverId = a.Covers.FirstOrDefault(c => c.Type == CoverType.Back)?.CoverId ?? -1,
                     AlbumName = a.Name,
-                    ArtistName = a.Artist != null ? a.Artist.Name : "Various Artists"
+                    ArtistName = a.Artist != null ? a.Artist.Name : "Various Artists",
+                    FromSpotify = !string.IsNullOrWhiteSpace(a.SpotifyId)
                 }).ToList(),
                 TotalCount = albums.Count
             };

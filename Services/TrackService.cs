@@ -15,7 +15,7 @@ namespace Covers.Services
         {
             _context = context;
         }
-        public async Task<IEnumerable<Track>> GetAsync()
+        public async Task<List<Track>> GetAsync()
         {
             return await _context.Tracks.ToListAsync();
         }

@@ -7,5 +7,6 @@
         public long AlbumId { get; set; }
         public string AlbumName { get; set; }
         public string ArtistName { get; set; }
+        public bool FromSpotify { get; set; }
     }
 }

@@ -13,7 +13,7 @@
     "react": "^16.0.0",
     "react-color-extractor": "^1.1.2",
     "react-dom": "^16.0.0",
-    "react-h5-audio-player": "^3.5.0",
+    "react-h5-audio-player": "^3.6.1",
     "react-konva": "^16.13.0-6",
     "react-lazy-images": "^1.1.0",
     "react-measure": "^2.5.2",

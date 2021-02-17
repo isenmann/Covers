@@ -15,7 +15,7 @@ namespace Covers.Services
         {
             _context = context;
         }
-        public async Task<IEnumerable<Artist>> GetAsync()
+        public async Task<List<Artist>> GetAsync()
         {
             return await _context.Artists.ToListAsync();
         }
