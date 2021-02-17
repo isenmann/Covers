@@ -8,13 +8,14 @@ Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI
 <img src="https://lh3.googleusercontent.com/pw/ACtC-3cPOzMtaB8KCSA3rssPSKBt5ubW73ww5Tp72rdRJofRRqY236VoHZMauMNAMYFxWjt4KmsDmtmooXhexWCCauQYapJlJKAC8K-ijz26mDXfbeFZ87uB4FuC_T43Fp0XREy0WnXtwfMwLQaaDxAINtSDaQ=w1254-h746-no?authuser=0" />
 
 ## Features
+* <b>NEW: Spotify support, integrates seamlessly into Covers</b>
 * network music player for your local music library
-* play your music on any device with a browser
+* play your music on any device with a browser (Spotify streams only to a desktop PC, no Android or iOS.)
 * no user limitations, every user has its own session
 * Album cover art as main navigation
 * especially for album lovers, no shuffle over the whole music library, just the album
 * unique look for each album and track listing dialog depending on the album art
-* automatically album cover art import from different sources (using the [Album Art Downloader](https://sourceforge.net/projects/album-art/) or [Smart Automatic Cover Art Downloader](https://github.com/desbma/sacad)) or importing them from the ID3 tags of your files
+* automatically album cover art import from different sources (using the [Album Art Downloader](https://sourceforge.net/projects/album-art/), [Smart Automatic Cover Art Downloader](https://github.com/desbma/sacad)), Spotify or importing them from the ID3 tags of your files
 * the local music library won't be altered in any way
 
 ## Installation
@@ -27,6 +28,7 @@ Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI
 "CoverDownloader": {
   // AAD = Album Art Downloader (https://sourceforge.net/projects/album-art/)
   // SACAD = Smart Automatic Cover Art Downloader (https://github.com/desbma/sacad)
+  // Spotify = Use Spotify to search for album covers, works only if you have setup the Spotify usage correctly. Leave the Executable empty
   "Type": "<your preferred cover downloader from above>",
   "Executable": "<your full path to the executable>"
 }
@@ -37,6 +39,7 @@ Example:
 "CoverDownloader": {
   // AAD = Album Art Downloader (https://sourceforge.net/projects/album-art/)
   // SACAD = Smart Automatic Cover Art Downloader (https://github.com/desbma/sacad)
+  // Spotify = Use Spotify to search for album covers, works only if you have setup the Spotify usage correctly. Leave the Executable empty
   "Type": "AAD",
   "Executable": "C:\\AlbumArtDownloaderXUI-1.05\\aad.exe"
 }
@@ -52,6 +55,7 @@ Example:
     }
   }
   ```
+* <b>how to add Spotify support is described in [this wiki article](https://github.com/isenmann/Covers/wiki/Spotify)</b> 
 * start Covers by double-click on the exe (Linux: make sure that Covers has the execution flag and then type ./Covers in a terminal of your choice)
 * point your browser to the address shown in the command line
 
@@ -65,7 +69,6 @@ It can happen that the automatic album cover downloader downloads a wrong cover 
 
 ## Roadmap
 
-* Spotify integration (currently working on)
 * Back cover song chooser (make the back cover interactable to choose the tracks instead of a simple table)
 * UI improvements for smaller displays (especially the album modal with track listing)
 
