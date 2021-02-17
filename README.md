@@ -31,6 +31,7 @@ Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI
   // Spotify = Use Spotify to search for album covers, works only if you have setup the Spotify usage correctly. Leave the Executable empty
   "Type": "<your preferred cover downloader from above>",
   "Executable": "<your full path to the executable>"
+  "CheckRegularForMissingCovers": "false"
 }
 ```
 Example:
@@ -42,6 +43,7 @@ Example:
   // Spotify = Use Spotify to search for album covers, works only if you have setup the Spotify usage correctly. Leave the Executable empty
   "Type": "AAD",
   "Executable": "C:\\AlbumArtDownloaderXUI-1.05\\aad.exe"
+  "CheckRegularForMissingCovers": "false"
 }
 ```
 * make sure that you have adjusted at least those two options in the appsettings file before you start Covers
@@ -61,7 +63,7 @@ Example:
 
 ## Usage
 ### Listen to music
-Using Covers and listen to music is very easy. Just click on a album cover art and the tracks of this album will be shown in a modal dialog. Click on a track and it will play. Click another track and this track will be played. Down below in the player you can scrap through the track with the slider or jump to next/previous track with the controls. Also you canjump -/+10 seconds with the forward and backward controls. Clicking the small cover thumbnail will open the album modal dialog again, clicking it again will close it.
+Using Covers and listen to music is very easy. Just click on a album cover art and the tracks of this album will be shown in a modal dialog. Click on a track and it will play. Click another track and this track will be played. Down below in the player you can scrap through the track with the slider or jump to next/previous track with the controls. Also you can jump +/- 10 seconds with the forward and backward controls. Clicking the small cover thumbnail will open the album modal dialog again, clicking it again will close it.
 The playback plays all title from top to bottom and will stop if it reaches the end of the album.
 
 ### Change album cover art
