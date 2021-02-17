@@ -1,12 +1,14 @@
 ﻿using Covers.Contracts;
 using Covers.Contracts.Interfaces;
 using Covers.Hubs;
+using ImageMagick;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -156,6 +158,38 @@ namespace Covers.Services
             }
 
             return await _spotifyClient.Player.GetCurrentPlayback();
+        }
+
+        public async Task<byte[]> GetAlbumCover(string albumName, string artist)
+        {
+            if (_spotifyClient == null)
+            {
+                return null;
+            }
+
+            byte[] ret = null;
+
+            var response = await _spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Album, $"{albumName} {artist}") { Limit = 1 });
+            if(response.Albums.Items.Count == 0)
+            {
+                response = await _spotifyClient.Search.Item(new SearchRequest(SearchRequest.Types.Album, $"{albumName}") { Limit = 1 });
+            }
+            
+            if (response.Albums.Items.Count > 0)
+            {
+                using var webclient = new WebClient();
+                var coverImage = webclient.DownloadData(response.Albums.Items[0].Images[0].Url);
+
+                using var image = new MagickImage(coverImage);
+                if (image.Width > 800)
+                {
+                    image.Scale(new MagickGeometry { IgnoreAspectRatio = false, Width = 800 });
+                }
+
+                ret = image.ToByteArray(MagickFormat.Png);
+            }
+
+            return ret;
         }
     }
 }

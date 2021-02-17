@@ -13,9 +13,10 @@ namespace Covers.Services
     public class CoverDownloadService : ICoverDownloadService
     {
         private readonly ILogger<CoverDownloadService> _logger;
+        private readonly ISpotifyService _spotifyService;
         private readonly CoverDownloadConfiguration _coverDownloaderConfiguration;
 
-        public CoverDownloadService(ILogger<CoverDownloadService> logger, IConfiguration configuration)
+        public CoverDownloadService(ILogger<CoverDownloadService> logger, IConfiguration configuration, ISpotifyService spotifyService)
         {
             if (configuration == null)
             {
@@ -23,6 +24,7 @@ namespace Covers.Services
             }
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _spotifyService = spotifyService ?? throw new ArgumentNullException(nameof(spotifyService));
             _coverDownloaderConfiguration = configuration.GetSection(CoverDownloadConfiguration.CoverDownloader).Get<CoverDownloadConfiguration>();
         }
         public async Task<Tuple<byte[], byte[]>> DownloadCoverAsync(string albumName, string artist)
@@ -42,7 +44,7 @@ namespace Covers.Services
                 return null;
             }
 
-            string arguments;
+            string arguments = string.Empty;
             switch (_coverDownloaderConfiguration.Type)
             {
                 case CoverDownloaderType.AAD:
@@ -51,25 +53,31 @@ namespace Covers.Services
                 case CoverDownloaderType.SACAD:
                     arguments = $"--disable-low-quality-sources \"{artist}\" \"{albumName}\" 800 Front.jpg";
                     break;
-                default:
-                    return null;
             }
 
-            var process = new Process();
-            process.StartInfo.FileName = _coverDownloaderConfiguration.Executable;
-            process.StartInfo.Arguments = arguments;
-            process.Start();
+            byte[] frontCover = null;
+            byte[] backCover = null;
 
-            await process.WaitForExitAsync();
-            var errorCode = process.ExitCode;
-
-            if(errorCode != 0)
+            if (_coverDownloaderConfiguration.Type == CoverDownloaderType.Spotify)
             {
-                return null;
+                frontCover = await _spotifyService.GetAlbumCover(albumName, artist);
+                backCover = null;
             }
+            else
+            {
+                var process = new Process();
+                process.StartInfo.FileName = _coverDownloaderConfiguration.Executable;
+                process.StartInfo.Arguments = arguments;
+                process.Start();
 
-            byte[] frontCover;
-            byte[] backCover;
+                await process.WaitForExitAsync();
+                var errorCode = process.ExitCode;
+
+                if (errorCode != 0)
+                {
+                    return null;
+                }
+            }
 
             switch (_coverDownloaderConfiguration.Type)
             {
@@ -81,8 +89,6 @@ namespace Covers.Services
                     frontCover = ScaleAndConvert("Front.jpg");
                     backCover = null; // not supported by SACAD
                     break;
-                default:
-                    return null;
             }
 
             if (File.Exists("Front.jpg"))

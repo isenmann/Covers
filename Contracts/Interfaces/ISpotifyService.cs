@@ -16,5 +16,6 @@ namespace Covers.Contracts.Interfaces
         Task SeekStepTo(string deviceId, long offset);
         Task SetVolume(string deviceId, double volume);
         Task<CurrentlyPlayingContext> RequestPlaybackState(string deviceId);
+        Task<byte[]> GetAlbumCover(string albumName, string artist);
     }
 }

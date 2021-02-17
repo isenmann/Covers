@@ -23,6 +23,7 @@ namespace Covers.BackgroundServices
         private ILogger<AlbumScanner> _logger;
         private readonly IServiceProvider _services;
         private DirectoryInfo _musicDirectory;
+        private CoverDownloadConfiguration _coverDownloaderConfiguration;
 
         public AlbumScanner(ILogger<AlbumScanner> logger, IServiceProvider services, IConfiguration configuration)
         {
@@ -35,6 +36,7 @@ namespace Covers.BackgroundServices
             _services = services ?? throw new ArgumentNullException(nameof(services));
             var path = configuration.GetValue<string>("MusicDirectory");
             _musicDirectory = new DirectoryInfo(path);
+            _coverDownloaderConfiguration = configuration.GetSection(CoverDownloadConfiguration.CoverDownloader).Get<CoverDownloadConfiguration>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -50,7 +52,7 @@ namespace Covers.BackgroundServices
                 var coverDownloaderService = scope.ServiceProvider.GetRequiredService<ICoverDownloadService>();
                 var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<CoversHub>>();
                 var spotify = scope.ServiceProvider.GetRequiredService<ISpotifyService>();
-                
+
                 var existingAlbums = await albumService.GetAsync();
 
                 // Delete all local albums from the database if they are no longer exist on disk
@@ -58,13 +60,13 @@ namespace Covers.BackgroundServices
                 var count = existingAlbums.RemoveAll(a => !Directory.Exists(a.Path) && string.IsNullOrWhiteSpace(a.SpotifyId));
                 if (count > 0)
                 {
-                    await hubContext.Clients.All.SendAsync("AlbumUpdates");
+                    await hubContext.Clients.All.SendAsync("AlbumUpdates", cancellationToken);
                 }
 
                 var existingArtists = await artistService.GetAsync();
                 var existingTracks = await trackService.GetAsync();
                 var albumsToAdd = new List<Album>();
-                
+
                 var localAlbums = await SyncLocalAlbums(hubContext, existingAlbums, existingTracks, existingArtists);
                 albumsToAdd.AddRange(localAlbums);
 
@@ -88,7 +90,7 @@ namespace Covers.BackgroundServices
                 {
                     foreach (var album in albumsToAdd.Where(a => a.Covers == null || a.Covers.Count == 0))
                     {
-                        await hubContext.Clients.All.SendAsync("Processing", $"Fetching album cover: {album.Name}");
+                        await hubContext.Clients.All.SendAsync("Processing", $"Fetching album cover: {album.Name}", cancellationToken);
                         var artistUnique = album.Tracks.Select(t => t.ArtistId).Distinct().Count() == 1;
                         var artist = artistUnique ? album.Tracks.First().Artist.Name : " ";
 
@@ -124,9 +126,53 @@ namespace Covers.BackgroundServices
                         }
                     }
 
-                    await hubContext.Clients.All.SendAsync("Processing", $"Done...", cancellationToken: cancellationToken);
+                    await hubContext.Clients.All.SendAsync("Processing", $"Done...", cancellationToken);
                     await albumService.AddAsync(albumsToAdd);
-                    await hubContext.Clients.All.SendAsync("AlbumUpdates", cancellationToken: cancellationToken);
+                    await hubContext.Clients.All.SendAsync("AlbumUpdates", cancellationToken);
+                }
+
+                if (_coverDownloaderConfiguration.CheckRegularForMissingCovers)
+                {
+                    // check existing albums for covers and try to fetch
+                    foreach (var album in existingAlbums.Where(a => a.Covers == null || a.Covers.Count == 0))
+                    {
+                        var artistUnique = album.Tracks.Select(t => t.ArtistId).Distinct().Count() == 1;
+                        var artist = artistUnique ? album.Tracks.First().Artist.Name : " ";
+
+                        var covers = await coverDownloaderService.DownloadCoverAsync(album.Name, artist);
+
+                        if (covers == null || (covers.Item1 == null && covers.Item2 == null))
+                        {
+                            continue;
+                        }
+
+                        album.Covers = new List<Cover>();
+
+                        if (covers.Item1 != null)
+                        {
+                            var cover = new Cover
+                            {
+                                AlbumId = album.AlbumId,
+                                Type = CoverType.Front,
+                                CoverImage = covers.Item1
+                            };
+                            album.Covers.Add(cover);
+                        }
+
+                        if (covers.Item2 != null)
+                        {
+                            var cover = new Cover
+                            {
+                                AlbumId = album.AlbumId,
+                                Type = CoverType.Back,
+                                CoverImage = covers.Item2
+                            };
+                            album.Covers.Add(cover);
+                        }
+
+                        await albumService.UpdateAsync(album);
+                        await hubContext.Clients.All.SendAsync("AlbumUpdates", cancellationToken);
+                    }
                 }
             }
         }
@@ -256,7 +302,6 @@ namespace Covers.BackgroundServices
             return albumsToAdd;
         }
 
-
         private async Task<List<Album>> SyncSpotifyAlbums(ISpotifyService spotifyService, IAlbumService albumService, IHubContext<CoversHub> hubContext, List<Album> existingAlbums, List<Track> existingTracks, List<Artist> existingArtists)
         {
             var spotifyAlbums = await spotifyService.GetAlbumsFromUserLibrary();
@@ -280,7 +325,6 @@ namespace Covers.BackgroundServices
             {
                 await hubContext.Clients.All.SendAsync("Processing", $"Processing Spotify album: {album.Album.Name}");
 
-                // because of scanning all mp3 files, look if another track already created the album, artist or track
                 var existingAlbum = existingAlbums.FirstOrDefault(a => a.Name == album.Album.Name);
                 var existingArtist = existingArtists.FirstOrDefault(a => a.Name == string.Join(",", album.Album.Artists.Select(a => a.Name)));
                 
@@ -351,7 +395,6 @@ namespace Covers.BackgroundServices
                     existingAlbum.Tracks.Add(existingTrack);
                 }
 
-                // if the mp3 tags have a picture, check if it's a front or back cover and add it to the album
                 if (album.Album.Images.Count > 0)
                 {
                     if (existingAlbum.Covers == null)
