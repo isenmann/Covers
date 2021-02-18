@@ -72,7 +72,7 @@ export class Home extends Component {
   checkSpotifyLogin(){
     axios.get('Spotify/Login').then((response) => {
       if(response.data.startsWith("https://accounts.spotify.com")){
-        window.location.href = response.data;
+        window.location.assign(response.data);
       }else{
           this.setState({ spotifyToken: response.data});
       }

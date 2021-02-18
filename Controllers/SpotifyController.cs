@@ -71,7 +71,8 @@ namespace Covers.Controllers
 
         [HttpGet("Callback"),
          ProducesResponseType(StatusCodes.Status200OK),
-         ProducesResponseType(StatusCodes.Status400BadRequest)]
+         ProducesResponseType(StatusCodes.Status400BadRequest),
+         ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> CallbackAsync(string code)
         {
             await _spotifyService.AddCallbackCodeAsync(code);
