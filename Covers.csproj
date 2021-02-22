@@ -12,7 +12,7 @@
     <Company />
     <PackageProjectUrl>https://github.com/isenmann/Covers</PackageProjectUrl>
     <RepositoryUrl>https://github.com/isenmann/Covers</RepositoryUrl>
-    <Version>0.1</Version>
+    <Version>0.2.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
