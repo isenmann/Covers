@@ -15,7 +15,7 @@ Written in C# (Web API in .NET 5) for the backend and ReactJS for the browser UI
 * Album cover art as main navigation
 * especially for album lovers, no shuffle over the whole music library, just the album
 * unique look for each album and track listing dialog depending on the album art
-* automatically album cover art import from different sources (using the [Album Art Downloader](https://sourceforge.net/projects/album-art/), [Smart Automatic Cover Art Downloader](https://github.com/desbma/sacad)), Spotify or importing them from the ID3 tags of your files
+* automatically album cover art import from different sources (using the [Album Art Downloader](https://sourceforge.net/projects/album-art/), [Smart Automatic Cover Art Downloader](https://github.com/desbma/sacad) or Spotify) or importing them from the ID3 tags of your music files
 * the local music library won't be altered in any way
 
 ## Installation
