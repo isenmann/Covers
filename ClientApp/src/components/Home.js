@@ -237,7 +237,15 @@ export class Home extends Component {
   };
 
   play = (trackId, spotifyUri, album) => {
-    this.setState({playerPaused: false, trackIdToPlay: trackId, spotifyUriToPlay: spotifyUri, albumToPlay: album, playerCover: `Cover/${this.state.frontCoverIdForModal}`});
+    let albumForThumbnailPlayer = this.state.albums.find(a => a.albumId === album.albumId);
+
+    this.setState({ 
+      playerPaused: false, 
+      trackIdToPlay: trackId, 
+      spotifyUriToPlay: spotifyUri, 
+      albumToPlay: album, 
+      playerCover: `Cover/${albumForThumbnailPlayer.frontCoverId}`});
+
     if(spotifyUri){
       axios.post('Spotify/Play', {
         SpotifyTrackUri: spotifyUri,
